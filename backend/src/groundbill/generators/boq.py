@@ -3,7 +3,8 @@
 Produces a Bill of Quantities workbook whose layout matches
 `reference/excel/4_BOQ_Contractor_Rev_A.xlsx`:
 
-- Data starts at row 7 (header row).
+- One worksheet per BOQ section (Section A, Section B, ...).
+- Within each sheet, data starts at row 7 (header row).
 - Row 8 holds the currency markers (€ in cols E and F).
 - Row 9 is the section heading (code and title, bold).
 - Row 10 onwards is one BOQ item per row across columns A-F:
@@ -13,17 +14,18 @@ The Amount cell is written as ``=IFERROR(D*E, "")`` so it resolves to the
 priced total once the contractor fills in the Rate column, and stays blank
 otherwise.
 
-Currently only Section A is implemented; sections B-L will be added as each
-is translated in the calculation engine.
+Sections A and B are implemented; sections C-L will be added as each is
+translated in the calculation engine.
 """
 
+from collections.abc import Callable
 from pathlib import Path
 
 from openpyxl import Workbook
 from openpyxl.styles import Font
 from openpyxl.worksheet.worksheet import Worksheet
 
-from groundbill.engine import compute_section_a
+from groundbill.engine import BoqItem, compute_section_a, compute_section_b
 from groundbill.models import Project
 
 _HEADER_ROW = 7
@@ -44,21 +46,42 @@ _BOLD = Font(bold=True)
 
 _HEADERS = ("Number", "Item description", "Unit", "Quantity", "Rate", "Amount")
 
+_SECTIONS: list[tuple[str, str, str, Callable[[Project], list[BoqItem]]]] = [
+    (
+        "Section A",
+        "A",
+        "General items, provisional services and additional items",
+        compute_section_a,
+    ),
+    (
+        "Section B",
+        "B",
+        (
+            "Cable Percussion Boring (cable tool or percussive boring using "
+            "minimum of 200mm diameter casing)"
+        ),
+        compute_section_b,
+    ),
+]
+
 
 def generate_boq(project: Project, output_path: Path | str) -> Path:
     """Write a BOQ workbook for the project. Returns the absolute output path."""
 
     wb = Workbook()
-    section_a_ws = wb.active
-    section_a_ws.title = "Section A"
-    _write_section_a(section_a_ws, project)
+    first = True
+    for sheet_title, code, title, compute in _SECTIONS:
+        ws = wb.active if first else wb.create_sheet()
+        ws.title = sheet_title
+        _write_section(ws, code, title, compute(project))
+        first = False
 
     path = Path(output_path)
     wb.save(path)
     return path.resolve()
 
 
-def _write_section_a(ws: Worksheet, project: Project) -> None:
+def _write_section(ws: Worksheet, code: str, title: str, items: list[BoqItem]) -> None:
     for letter, width in _COLUMN_WIDTHS.items():
         ws.column_dimensions[letter].width = width
 
@@ -69,16 +92,12 @@ def _write_section_a(ws: Worksheet, project: Project) -> None:
     ws.cell(row=_CURRENCY_ROW, column=5, value="€")
     ws.cell(row=_CURRENCY_ROW, column=6, value="€")
 
-    code_cell = ws.cell(row=_SECTION_HEADING_ROW, column=1, value="A")
+    code_cell = ws.cell(row=_SECTION_HEADING_ROW, column=1, value=code)
     code_cell.font = _BOLD
-    title_cell = ws.cell(
-        row=_SECTION_HEADING_ROW,
-        column=2,
-        value="General items, provisional services and additional items",
-    )
+    title_cell = ws.cell(row=_SECTION_HEADING_ROW, column=2, value=title)
     title_cell.font = _BOLD
 
-    for offset, item in enumerate(compute_section_a(project)):
+    for offset, item in enumerate(items):
         r = _FIRST_ITEM_ROW + offset
         ws.cell(row=r, column=1, value=item.code)
         ws.cell(row=r, column=2, value=item.description)

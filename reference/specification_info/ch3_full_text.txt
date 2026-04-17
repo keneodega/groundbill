@@ -1,0 +1,65 @@
+## Chapter 3 full body extract
+Range: item 144 .. 219
+Total items: 75
+
+[ 144] [heading 1     ] Geotechnical Sampling and In-situ Testing Requirements
+[ 145] [Normal        ] A CAT scan is to be carried out and inspection pits are to be excavated by hand to depths of 1.2m at each exploratory hole location where services may be encountered. Under the Safety, Health and Welfare at Work (Construction) Regulations 2013, persons carrying out the task of locating underground services are required to be in possession of a Construction Skills Certification Scheme (CSCS) card.
+[ 146] [Normal        ] In addition, avoidance of underground services shall follow the guidance as outlined in the “Code of Practice For Avoiding Danger From Underground Services”, 2010, published by the HSA. CAT scans shall be undertaken in accordance with the UK HSG47 'Avoiding danger from underground services' 2000 published by UK HSE by an approved and qualified operator.
+[ 147] [Normal        ] Groundwater strikes, or inflow encountered within any exploratory hole shall be recorded and presented on the engineering logs.
+[ 149] [Normal        ] All ground investigation holes must be backfilled and left safe.
+[ 150] [heading 2     ] Hard Standing
+[ 151] [Body Text     ] Some exploratory holes will be carried out on an area covered by concrete pavement of unknown thickness but can be expected at a standard 0.3 m thickness. The use of correct method to go through the hard standing shall be determined by the Contractor after inspection of the site.
+[ 152] [heading 2     ] Cable Percussion Boring
+[ 153] [NormalNoSpace ] The Contractor shall select plant appropriate to the proposed drill locations, depths and anticipated geological conditions. The method of advancement and the diameter of the borehole shall be such that the boring can be completed and logged to the scheduled depth.
+[ 154] [NormalNoSpace ] Soil boring shall be undertaken using a rig with the capability of undertaking Standard Penetration Tests (SPT) and U100 samples. The Engineer is to be notified of the intended plant/soil boring rig prior to commencement onsite.
+[ 155] [NormalNoSpace ] Casing may be required.
+[ 156] [NormalNoSpace ] Cable Percussion holes shall be taken to the indicative depth proposed in Schedule 2 to this Specification or refusal whichever comes first.
+[ 157] [NormalNoSpace ] Starting hole diameter shall be a minimum of 200 mm. The Contractor shall agree with the Investigation Supervisor reductions in the casing diameter with depth depending on the ground conditions encountered.
+[ 158] [NormalNoSpace ] The position, number and depth of the exploratory hole may be subject to adjustment on-site as directed by the Engineer.
+[ 159] [NormalNoSpace ] The Contractor shall allow for whatever plant and/or equipment they deem necessary in order to safely locate the drilling rig in the vicinity of the proposed hole locations.
+[ 160] [Normal        ] Any groundwater seepage shall be recorded on the borehole logs.
+[ 162] [Normal        ] The Contractor is required to obtain the Engineer’s approval before commencing and before backfilling any borehole.  The Engineer will give any installation details and backfill instructions.
+[ 164] [heading 2     ] Rotary Drilling
+[ 165] [Normal        ] Rotary coring is required as cable percussive technique follow-on for 3 of the boreholes.  It is expected to be required through soil and rock.  Unless otherwise instructed by the Investigation Supervisor, all Rotary Cored Boreholes will be cored to a minimum of 5 m into substantially unweathered competent rock at each location where rock is encountered. Rotary coring is required from rock head in all boreholes where rock is encountered.
+[ 166] [Normal        ] The Contractor may use an alternative method for drilling in the overburden and rock, subject to approval. This method may consist of other similar rotary techniques to achieve the minimum hole diameter in one drilling operation.
+[ 167] [Normal        ] Rotary coring may also be permitted or required through soil from 1.20m level or at depth instead of cable percussive techniques and unless otherwise instructed or agreed with the Investigation Supervisor, it shall consist of hollow stem auger, Geobore S or other similar techniques subject to approval by the Investigation Supervisor, using a semi rigid liner and allowing to produce a continuous core not less than 100mm in diameter.
+[ 168] [Normal        ] Where rotary coring is scheduled at cable percussive borehole locations, it is to be carried out from the final depth of the cable percussive borehole at that location.  If rotary coring is required in rock, the same rig shall be used for coring through soil and rock without additional setting-up at the borehole location.
+[ 169] [Normal        ] If the cable percussive borehole does not reach bedrock, rotary coring is required from the final depth of the cable percussive borehole through the overburden and weathered bedrock. Insitu testing in the form of SPTs in cohesive materials & CPTs granular material at regular intervals. Samples should be obtained from the split spoon.
+[ 170] [Normal        ] All boreholes shall be backfilled (grout/bentonite pellets or instrumentation installation) immediately upon completion of drilling and the location and access route(s) reinstated immediately as close as possible to the original ground condition.  All dismantled or damaged wall, fences, edges etc. must reinstated and made good.
+[ 171] [Normal        ] Where exploratory holes are carried out in grassed areas, the ground shall be reinstated as close as possible to the existing condition prior to the start of the works, including top-soiling and reseeding. This includes any damage to grassed areas along access routes to exploratory hole locations.
+[ 172] [Normal        ] Where boreholes are not completed in the day they are commenced or when left unattended, the entire work area shall be fenced off at the end of shift by the Contractor using heras or similar style fencing.
+[ 173] [Normal        ] Rotary cored boreholes are to be carried out to produce continuous core of not less than 92mm in rock and 100mm in soil to allow Class 1 samples to be retrieved for laboratory testing. (The drilling diameter shall allow for casing if required in unstable ground in order to achieve the required core diameter).
+[ 174] [Normal        ] Not permitted to advance the hole to the schedule depth unless specified in Schedule 2.  If the contractor choses to use open hole drilling techniques at his own cost to retrieve the depth of a borehole already achieved by cable percussive and/or rotary coring techniques.
+[ 175] [heading 2     ] Dynamic probes
+[ 176] [List Bullet   ] 19 no.  Dynamic Probe Heavy (DPH) to be put down to an anticipated maximum depth of up to 8m.
+[ 178] [heading 2     ] Trial Pits
+[ 179] [Body Text     ] A 13-tonne excavator will be required to complete the trial pits to a scheduled depth of 4.5m.
+[ 181] [Body Text     ] Hand vanes will be required every meter in cohesive material.
+[ 183] [Body Text     ] DCPs will be required in every trial pit at a depth of 1.2mbgl.
+[ 185] [Body Text     ] Environmental samples will be required in any Made Ground encountered.
+[ 186] [Body Text     ] Environmental samples will be required in 3 Trial Pits at 0.5mbgl, 1.5mbgl, 2.5mbgl, 3.5mbgl and 4.5mbgl as listed in Table 1
+[ 188] [Body Text     ] Bulk bag and tub should be taken at 0.5m, 1m and every meter thereafter and/or every change in stratum.
+[ 189] [heading 2     ] Slit trenching
+[ 190] [Body Text     ] The slit trenches should locate the services identified and will be to a depth of 2mbgl. The slit trenches should also identify any foundations from demolished housing or Made Ground.
+[ 192] [heading 2     ] Insitu Testing, Sampling and Monitoring
+[ 193] [NormalNoSpace ] Standard Penetration Testing in accordance with IS EN ISO 22476-3 shall be undertaken at 1m intervals and are to alternate sampling with a thin-walled open tube sampler (UT100), where in a cohesive stratum.
+[ 194] [NormalNoSpace ] In granular soils SPTs shall be taken at 1.0 m intervals to borehole completion.  The mass, dimensions, energy ratio and calibration sheets of the SPT equipment shall be provided with the engineering log.
+[ 195] [NormalNoSpace ] Undisturbed samples shall be recovered by the use of a UT100, capable of obtaining a sample of a minimum diameter of 100mm and comply with Clause 6.4.2.3.2 of IS EN ISO 22475-1:2006.
+[ 196] [NormalNoSpace ] Bulk bags, plastic tubs and jar samples shall be taken immediately below the topsoil, at every change of strata and at one-meter intervals within the same stratum for soil description logging purposes in all exploratory holes.  Where samples are taken at depths which correspond with the boundary of two material types, the Contractor shall clearly state which of the materials has been sampled.
+[ 197] [NormalNoSpace ] Where groundwater samples are taken at a depth corresponding to a boundary between different materials, the Contractor shall clearly state within which material the water is associated.
+[ 198] [NormalNoSpace ] The Contractor shall ensure that sufficient sample quantities are collected for the material type in question and the likely laboratory testing required (refer to Section 5).  Where insufficient sample is available for testing the Contractor shall be responsible at his cost for the collection of sufficient material to test.
+[ 199] [Normal        ] Where there is suspected asbestos encountered, a double bagged sample shall be taken and clearly labelled as potentially containing asbestos.
+[ 201] [heading 2     ] Contamination avoidance and/or aquifer protection measures required
+[ 202] [Body Text     ] Asbestos awareness procedures shall be in place in case asbestos is encountered so as to minimise the risk of harm to human health.
+[ 203] [Body Text     ] Containment of fluid for all works is to be suitably compounded.
+[ 204] [Body Text     ] All equipment shall be thoroughly cleaned before being used on site. A clean stainless-steel trowel shall be used to sub-sample soil samples for chemical testing, which shall be cleaned between samples. When working on land affected by contamination the Contractor shall clean equipment (including wheels) before leaving the site and, where deemed necessary, between exploratory hole positions.
+[ 205] [Body Text     ] If significant contamination is encountered, sampling equipment and tools shall be cleaned between strata, specifically at the boundary between Made Ground and natural strata, in order to prevent cross contamination occurring.
+[ 206] [Body Text     ] The Contractor may only use vegetable oil-based lubricants.
+[ 209] [heading 2     ] Photography requirements
+[ 210] [NormalNoSpace ] General
+[ 211] [Body Text     ] The Contractor shall provide sufficient digital photographs to show the condition of each exploratory hole location prior to the start of the investigation works and on completion of the investigation.
+[ 212] [Body Text     ] Digital copies of the photographs shall be provided to the Investigation Supervisor within 48 hours of being taken.
+[ 213] [NormalNoSpace ] Inspection Pits and Trial Pit Photos
+[ 214] [Body Text     ] All inspection pits shall be photographed to show a general view of the pit and excavation arisings plus separate views of each excavated face and any foundations exposed, as well as any noted contamination. Photographs shall include:
+[ 215] [Table Text    ] A colour chart and graduated scale in centimetres is provided; and
+[ 216] [Table Text    ] A clearly legible reference board identifying the project title, exploratory hole number, date and depth range of drill runs shall be included in each photograph.

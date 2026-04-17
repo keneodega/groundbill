@@ -25,7 +25,21 @@ from openpyxl import Workbook
 from openpyxl.styles import Font
 from openpyxl.worksheet.worksheet import Worksheet
 
-from groundbill.engine import BoqItem, compute_section_a, compute_section_b
+from groundbill.engine import (
+    BoqItem,
+    compute_section_a,
+    compute_section_b,
+    compute_section_c,
+    compute_section_d,
+    compute_section_e,
+    compute_section_f,
+    compute_section_g,
+    compute_section_h,
+    compute_section_i,
+    compute_section_j,
+    compute_section_k,
+    compute_section_l,
+)
 from groundbill.models import Project
 
 _HEADER_ROW = 7
@@ -61,6 +75,66 @@ _SECTIONS: list[tuple[str, str, str, Callable[[Project], list[BoqItem]]]] = [
             "minimum of 200mm diameter casing)"
         ),
         compute_section_b,
+    ),
+    (
+        "Section C",
+        "C",
+        "Rotary Drilling",
+        compute_section_c,
+    ),
+    (
+        "Section D",
+        "D",
+        "Pitting and Trenching",
+        compute_section_d,
+    ),
+    (
+        "Section E",
+        "E",
+        "Sampling and Monitoring",
+        compute_section_e,
+    ),
+    (
+        "Section F",
+        "F",
+        "Probing and Cone Penetration Testing",
+        compute_section_f,
+    ),
+    (
+        "Section G",
+        "G",
+        "Geophysical Testing",
+        compute_section_g,
+    ),
+    (
+        "Section H",
+        "H",
+        "In-situ Testing",
+        compute_section_h,
+    ),
+    (
+        "Section I",
+        "I",
+        "Instrumentation",
+        compute_section_i,
+    ),
+    (
+        "Section J",
+        "J",
+        "Installation Monitoring",
+        compute_section_j,
+    ),
+    (
+        "Section K",
+        "K",
+        "Geotechnical Laboratory Testing",
+        compute_section_k,
+    ),
+    (
+        "Section L",
+        "L",
+        "Geoenvironmental Laboratory Testing",
+        compute_section_l,
     ),
 ]
 

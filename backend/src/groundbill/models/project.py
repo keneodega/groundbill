@@ -8,6 +8,7 @@ computing every line item from this shared object.
 from pydantic import BaseModel, ConfigDict, Field
 
 from .enums import ContractRoute, SiteCategory
+from .geology import AnticipatedGeology
 from .holes import (
     CPT,
     Borehole,
@@ -19,6 +20,7 @@ from .holes import (
     TrialPit,
 )
 from .lab import LabSchedule
+from .parties import ContractParties
 
 
 class Project(BaseModel):
@@ -30,6 +32,20 @@ class Project(BaseModel):
     site_address: str
     contract_route: ContractRoute
     site_category: SiteCategory = SiteCategory.GREEN
+
+    # Optional narrative / reference fields for the Specification.
+    # All default to None so existing fixtures and tests stay valid.
+    project_description: str | None = Field(
+        default=None,
+        description="One-sentence summary of what is being investigated and where — "
+        "appears in the opening paragraph of the Specification",
+    )
+    location_drawing_reference: str | None = Field(
+        default=None,
+        description="Drawing number showing the proposed exploratory-hole locations",
+    )
+    parties: ContractParties = Field(default_factory=ContractParties)
+    anticipated_geology: AnticipatedGeology = Field(default_factory=AnticipatedGeology)
 
     boreholes: list[Borehole] = Field(default_factory=list)
     trial_pits: list[TrialPit] = Field(default_factory=list)

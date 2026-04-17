@@ -13,6 +13,7 @@ from .enums import (
     PSEVTest,
     SiteCategory,
 )
+from .geology import AnticipatedGeology
 from .holes import (
     CPT,
     Borehole,
@@ -25,11 +26,14 @@ from .holes import (
     TrialPit,
 )
 from .lab import LabSchedule, LabTestAllocation
+from .parties import ContractParties
 from .project import Project
 
 __all__ = [
     "CPT",
+    "AnticipatedGeology",
     "Borehole",
+    "ContractParties",
     "ContractRoute",
     "DrillingMethod",
     "DrillingPhase",

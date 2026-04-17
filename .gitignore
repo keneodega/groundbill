@@ -33,3 +33,13 @@ Thumbs.db
 # Excel lock files (created by Excel while a workbook is open)
 ~$*.xlsx
 ~$*.xltm
+~$*.docx
+~$*.docm
+
+# Generated document artefacts (BOQ/Spec/Schedule2 output)
+backend/out/
+
+# Reference specification source files contain client/project names —
+# keep them local only. The text outlines we extract from them
+# (source_outline.txt, ch3_full_text.txt) are safe and tracked.
+reference/specification_info/Specification/

@@ -1,0 +1,60 @@
+
+======================================================================
+## Chapter: Laboratory Testing
+## Range: item 219 .. 238
+======================================================================
+
+[ 219] [heading 1     ] Laboratory Testing
+[ 220] [heading 2     ] Geotechnical Laboratory Testing (Soil)
+[ 221] [Normal        ] The extent of geotechnical laboratory soil testing is anticipated to comprise, but not limited to, the following:
+[ 222] [List Bullet   ] Soil Classification Tests
+[ 223] [List Bullet   ] Soil Strength Tests
+[ 224] [List Bullet   ] Chemical Tests
+[ 226] [Normal        ] Additional geotechnical tests (both type and quantity) may be required depending on the samples recovered and ground conditions encountered.
+[ 231] [heading 2     ] Chemical Testing (Soil)
+
+======================================================================
+## Chapter: Testing Scheduling
+## Range: item 238 .. 242
+======================================================================
+
+[ 238] [heading 1     ] Testing Scheduling
+[ 239] [Normal        ] Blank laboratory testing schedules and the driller’s logs shall be provided to the Designer within 24 hours following completion of the exploratory hole.
+
+======================================================================
+## Chapter: Reporting
+## Range: item 242 .. 250
+======================================================================
+
+[ 242] [heading 1     ] Reporting
+[ 243] [Normal        ] Typed Engineer’s logs are to be submitted to the Engineer’s Representative within one week of completion of the exploratory hole.
+[ 245] [Normal        ] A standard Factual Report is required and shall be produced in accordance with Engineers Ireland’s ‘Specification and Related Documents for Ground Investigation in Ireland’
+[ 246] [Normal        ] A standard Interpretive Report is required and shall be produced in accordance with Engineers Ireland’s ‘Specification and Related Documents for Ground Investigation in Ireland’
+[ 248] [Normal        ] All contamination testing results must be presented in both PDF and Excel format. AGS data 4.0 shall be provided for the ground investigation both in draft format whilst laboratory testing is underway and a final version upon completion of the project.
+
+======================================================================
+## Chapter: Further Information
+## Range: item 250 .. 294
+======================================================================
+
+[ 250] [heading 1     ] Further Information
+[ 251] [heading 2     ] Services Information
+[ 253] [Body Text     ] The GI Contractor shall contact the relevant utility providers and comply with their requirements with respect to excavations in the vicinity of their services. It is the responsibility of the GI Contractor to ensure that all services have been cleared and are not damaged as a result of the fieldworks.
+[ 255] [Body Text     ] The Contractor is to satisfy himself that the risk from buried services and overhead cables has been mitigated through, but not limited to: ascertaining the location of the services at the site, use of cable avoidance equipment, risk assessments and any other means to mitigate potential risks.
+[ 256] [heading 2     ] Health and Safety Requirements
+[ 257] [Body Text     ] The Safety Health and Welfare at Work Construction Regulations 2013 (and SI 291 2013), are applicable to this contract.
+[ 258] [NormalNoSpace ] Prior to the start of the site operations the Contractor shall provide risk assessments and method statements covering all aspects of the work to be carried out which should form part of the Construction Phase Health and Safety Plan to be produced by the Project Supervisor of Construction Stage (PSCS) and submitted to the Investigation Supervisor.
+[ 259] [Body Text     ] Due to the special circumstances with COVID-19, the HSE & HSA Guidance for construction workers operating on sites must be followed at all times. The guidance can be found on their respective websites listed below:
+[ 260] [Body Text     ] HSE: https://www.hse.ie/eng/services/news/newsfeatures/covid19-updates/
+[ 261] [NormalNoSpace ] HSA: https://www.hsa.ie/eng/topics/covid-19_coronavirus_information_and_resources/Face shield/mask and disposable gloves to be provided to Investigation Supervisor when required.
+[ 262] [heading 2     ] Security of the site
+[ 264] [Body Text     ] The GI Contractor shall erect a compound (welfare, offices, storage etc. as required for their operations) at his own cost. The GI Contractor shall liaise with the Employer to agree a suitable location if deemed to be required.
+[ 266] [Body Text     ] The GI Contractor shall ensure that the general public and people working on the port are protected at all times while plant and equipment are mobilised, in use at, and demobilised to/from each exploratory location.
+[ 269] [heading 2     ] Traffic management measures
+[ 271] [Body Text     ] The GI Contractor must satisfy themselves of the need of any traffic management measures in order to safely access the site. Should a need for such measures be identified this should be raised at an early stage to allow timely discussions with site owner.
+[ 273] [heading 2     ] Access to site
+[ 274] [Body Text     ] Access is to be confirmed by Client.
+[ 279] [Intro Heading ] Appendices
+[ 283] [heading 6     ] Drawings
+[ 284] [Normal        ] Drawing no…xxxx
+[ 292] <TABLE>

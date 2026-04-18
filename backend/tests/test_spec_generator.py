@@ -373,6 +373,199 @@ def test_ch3_insitu_testing_and_contamination_always_emitted(tmp_path: Path) -> 
 
 
 # ---------------------------------------------------------------------------
+# Chapter 4 — Laboratory Testing
+# ---------------------------------------------------------------------------
+
+
+def test_ch4_heading_and_subsections(tmp_path: Path) -> None:
+    out = generate_spec(build_basic_site(), tmp_path / "spec.docx")
+    doc = load_docx(str(out))
+    headings = [p.text for p in doc.paragraphs if p.style.name.startswith("Heading")]
+
+    assert "4 Laboratory Testing" in headings
+    assert "4.1 Geotechnical Laboratory Testing (Soil)" in headings
+    assert "4.2 Chemical Testing (Soil)" in headings
+
+
+def test_ch4_lists_anticipated_test_types(tmp_path: Path) -> None:
+    out = generate_spec(build_basic_site(), tmp_path / "spec.docx")
+    all_text = "\n".join(p.text for p in load_docx(str(out)).paragraphs)
+
+    assert "Soil Classification Tests" in all_text
+    assert "Soil Strength Tests" in all_text
+    assert "Chemical Tests" in all_text
+
+
+# ---------------------------------------------------------------------------
+# Chapter 5 — Testing Scheduling
+# ---------------------------------------------------------------------------
+
+
+def test_ch5_heading_and_24_hour_clause(tmp_path: Path) -> None:
+    out = generate_spec(build_basic_site(), tmp_path / "spec.docx")
+    doc = load_docx(str(out))
+
+    headings = [p.text for p in doc.paragraphs if p.style.name.startswith("Heading")]
+    assert "5 Testing Scheduling" in headings
+
+    all_text = "\n".join(p.text for p in doc.paragraphs)
+    assert "within 24 hours" in all_text
+
+
+def test_ch5_renders_lab_schedule_table_when_populated(tmp_path: Path) -> None:
+    from groundbill.models import LabSchedule, LabTestAllocation
+
+    project = build_basic_site().model_copy(
+        update={
+            "lab_schedule": LabSchedule(
+                allocations=[
+                    LabTestAllocation(test_name="Moisture content", quantity=12),
+                    LabTestAllocation(test_name="Atterberg limits", quantity=6),
+                    LabTestAllocation(test_name="Triaxial UU", quantity=3),
+                ]
+            )
+        }
+    )
+    out = generate_spec(project, tmp_path / "spec.docx")
+    doc = load_docx(str(out))
+
+    # Ch 2 holes table plus Ch 5 lab schedule table = 2 tables total
+    assert len(doc.tables) == 2
+
+    lab_table = doc.tables[1]
+    header_cells = [cell.text for cell in lab_table.rows[0].cells]
+    assert header_cells == ["Test", "Scheduled Quantity"]
+
+    data_col_0 = [row.cells[0].text for row in lab_table.rows[1:]]
+    assert "Moisture content" in data_col_0
+    assert "Triaxial UU" in data_col_0
+
+    # Quantities preserved
+    moisture_row = next(
+        row for row in lab_table.rows[1:] if row.cells[0].text == "Moisture content"
+    )
+    assert moisture_row.cells[1].text == "12"
+
+
+def test_ch5_without_lab_schedule_says_so(tmp_path: Path) -> None:
+    # basic_site has no lab allocations
+    out = generate_spec(build_basic_site(), tmp_path / "spec.docx")
+    all_text = "\n".join(p.text for p in load_docx(str(out)).paragraphs)
+
+    assert "confirmed following recovery of samples" in all_text
+    # No extra lab-schedule table
+    assert len(load_docx(str(out)).tables) == 1
+
+
+# ---------------------------------------------------------------------------
+# Chapter 6 — Reporting
+# ---------------------------------------------------------------------------
+
+
+def test_ch6_heading_and_report_types(tmp_path: Path) -> None:
+    out = generate_spec(build_basic_site(), tmp_path / "spec.docx")
+    doc = load_docx(str(out))
+    headings = [p.text for p in doc.paragraphs if p.style.name.startswith("Heading")]
+
+    assert "6 Reporting" in headings
+
+    all_text = "\n".join(p.text for p in doc.paragraphs)
+    assert "Factual Report" in all_text
+    assert "Interpretive Report" in all_text
+    assert "AGS data 4.0" in all_text
+    assert "Engineer's logs" in all_text
+
+
+def test_ch6_references_the_named_specification(tmp_path: Path) -> None:
+    out = generate_spec(build_basic_site(), tmp_path / "spec.docx")
+    all_text = "\n".join(p.text for p in load_docx(str(out)).paragraphs)
+    # The Engineers Ireland spec is the referenced_specification constant
+    assert "Engineers Ireland" in all_text
+    assert "Specification and Related Documents for Ground Investigations" in all_text
+
+
+# ---------------------------------------------------------------------------
+# Chapter 7 — Further Information
+# ---------------------------------------------------------------------------
+
+
+def test_ch7_heading_and_five_subsections(tmp_path: Path) -> None:
+    out = generate_spec(build_basic_site(), tmp_path / "spec.docx")
+    doc = load_docx(str(out))
+    headings = [p.text for p in doc.paragraphs if p.style.name.startswith("Heading")]
+
+    assert "7 Further Information" in headings
+    assert "7.1 Services Information" in headings
+    assert "7.2 Health and Safety Requirements" in headings
+    assert "7.3 Security of the Site" in headings
+    assert "7.4 Traffic Management Measures" in headings
+    assert "7.5 Access to Site" in headings
+
+
+def test_ch7_health_safety_cites_the_2013_regulations(tmp_path: Path) -> None:
+    out = generate_spec(build_basic_site(), tmp_path / "spec.docx")
+    all_text = "\n".join(p.text for p in load_docx(str(out)).paragraphs)
+
+    assert "Safety, Health and Welfare at Work (Construction) Regulations 2013" in all_text
+    assert "PSCS" in all_text
+
+
+def test_ch7_access_clause_is_present(tmp_path: Path) -> None:
+    out = generate_spec(build_basic_site(), tmp_path / "spec.docx")
+    all_text = "\n".join(p.text for p in load_docx(str(out)).paragraphs)
+
+    assert "Access arrangements are to be confirmed by the Employer." in all_text
+
+
+# ---------------------------------------------------------------------------
+# Phase 6 styling — page breaks, header, footer
+# ---------------------------------------------------------------------------
+
+
+def test_running_header_contains_spec_title_and_project_name(tmp_path: Path) -> None:
+    project = build_basic_site()
+    out = generate_spec(project, tmp_path / "spec.docx")
+    doc = load_docx(str(out))
+
+    header = doc.sections[0].header
+    header_text = "\n".join(p.text for p in header.paragraphs)
+
+    assert "Ground Investigation Specification" in header_text
+    assert project.name in header_text
+
+
+def test_running_footer_contains_page_number_field(tmp_path: Path) -> None:
+    out = generate_spec(build_basic_site(), tmp_path / "spec.docx")
+    doc = load_docx(str(out))
+
+    footer = doc.sections[0].footer
+    footer_text = "\n".join(p.text for p in footer.paragraphs)
+    assert "Page" in footer_text
+
+    # python-docx's .text does not surface PAGE field value, so we verify the
+    # presence of a w:instrText element with "PAGE" in the footer XML.
+    footer_xml = footer._element.xml
+    assert "PAGE" in footer_xml
+    assert "fldChar" in footer_xml
+
+
+def test_page_breaks_between_chapters(tmp_path: Path) -> None:
+    """Each chapter + the preamble should be separated by a page break so
+    Word lays them out on fresh pages. Eight top-level clauses (Preamble
+    + Ch 1-7) means seven inter-clause page breaks, plus the cover-page
+    break. Total breaks should be at least eight.
+    """
+    out = generate_spec(build_basic_site(), tmp_path / "spec.docx")
+    doc = load_docx(str(out))
+
+    # Each page break appears as a <w:br w:type="page"/> within a run.
+    body_xml = doc.element.body.xml
+    # Count via the substring — each break is exactly this XML fragment.
+    break_count = body_xml.count('w:type="page"')
+    assert break_count >= 8, f"expected >= 8 page breaks, got {break_count}"
+
+
+# ---------------------------------------------------------------------------
 # Contract route gating
 # ---------------------------------------------------------------------------
 

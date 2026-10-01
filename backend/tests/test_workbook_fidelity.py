@@ -23,6 +23,7 @@ from groundbill.engine import (
     compute_section_e,
     compute_section_f,
     compute_section_g,
+    compute_section_h,
     compute_section_j,
     compute_section_l,
 )
@@ -41,6 +42,7 @@ _VERIFIED_SECTIONS: dict[str, Callable[[Project], list[BoqItem]]] = {
     "E": compute_section_e,
     "F": compute_section_f,
     "G": compute_section_g,
+    "H": compute_section_h,
     "J": compute_section_j,
     "L": compute_section_l,
 }

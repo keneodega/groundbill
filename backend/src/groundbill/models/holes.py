@@ -144,12 +144,15 @@ class DynamicSample(_HoleBase):
 
 
 class Soakaway(_HoleBase):
-    """Source sheet: 'Soakaway (BRE)'."""
+    """Source sheet: 'Soakaway (BRE)'.
+
+    Column E ('Completed') is a formula, ``=IF(I2>0, 1, 0)``, so it is derived
+    from the recorded depth rather than stored here.
+    """
 
     soakaway_id: str = Field(description="Col A — 'ID REF'")
     road: str | None = Field(default=None, description="Col B")
     schedule_depth_m: float = Field(gt=0, description="Col D")
-    completed: bool = Field(default=False, description="Col E")
     in_situ_tests: set[InSituTest] = Field(
         default_factory=set, description="Col F — 'Insitu Tests'"
     )

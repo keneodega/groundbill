@@ -81,7 +81,7 @@ def compute_section_b(project: Project) -> list[BoqItem]:
 
     cp_bands = [0.0, 0.0, 0.0, 0.0]
     for bh in project.boreholes:
-        for i, metres in enumerate(_cp_band_distribution(bh)):
+        for i, metres in enumerate(cp_band_distribution(bh)):
             cp_bands[i] += metres
     b4, b5, b6, b7 = cp_bands
 
@@ -360,8 +360,12 @@ def _drilling_type(borehole: Borehole) -> str | None:
     return None
 
 
-def _cp_band_distribution(borehole: Borehole) -> list[float]:
-    """Return CP metreage split across the 0-10 / 10-20 / 20-30 / 30-40 bands."""
+def cp_band_distribution(borehole: Borehole) -> list[float]:
+    """Return CP metreage split across the 0-10 / 10-20 / 20-30 / 30-40 bands.
+
+    Equivalent to Boreholes columns N:Q for one borehole. Also read by
+    Section H (SPT counts), as in the Calculator.
+    """
     cp_start = 0.0
     seen_cp = False
     cp_total = 0.0

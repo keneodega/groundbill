@@ -138,13 +138,13 @@ def compute_section_c(project: Project) -> list[BoqItem]:
     c19 = c15_2_2 + c15_2_1 + c15_1_2 + c15_1_1
 
     # 'Section C'!D40:D43: =[1]Boreholes!$BA92 ... $BD92 — WITHOUT CORE in SOFT strata
-    c21, c22, c23, c24 = _sum_rotary_bands(boreholes, DrillingMethod.ROTARY_NO_CORE_SOFT)
+    c21, c22, c23, c24 = sum_rotary_bands(boreholes, DrillingMethod.ROTARY_NO_CORE_SOFT)
     # 'Section C'!D46:D49: =[1]Boreholes!$AG92 ... $AJ92 — WITHOUT CORE in HARD strata
-    c27, c28, c29, c30 = _sum_rotary_bands(boreholes, DrillingMethod.ROTARY_NO_CORE_HARD)
+    c27, c28, c29, c30 = sum_rotary_bands(boreholes, DrillingMethod.ROTARY_NO_CORE_HARD)
     # 'Section C'!D54:D57: =[1]Boreholes!$AQ92 ... $AT92 — WITH CORE in SOFT strata
-    c34, c35, c36, c37 = _sum_rotary_bands(boreholes, DrillingMethod.ROTARY_CORE_SOFT)
+    c34, c35, c36, c37 = sum_rotary_bands(boreholes, DrillingMethod.ROTARY_CORE_SOFT)
     # 'Section C'!D61:D64: =[1]Boreholes!$W92 ... $Z92 — WITH CORE in HARD strata
-    c41, c42, c43, c44 = _sum_rotary_bands(boreholes, DrillingMethod.ROTARY_CORE_HARD)
+    c41, c42, c43, c44 = sum_rotary_bands(boreholes, DrillingMethod.ROTARY_CORE_HARD)
 
     return [
         # 'Section C'!D11: Not Required
@@ -975,8 +975,11 @@ def _rotary_band_distribution(borehole: Borehole, method: DrillingMethod) -> lis
     ]
 
 
-def _sum_rotary_bands(boreholes: list[Borehole], method: DrillingMethod) -> list[float]:
-    """Boreholes row 92 for one method: each band column summed over all boreholes."""
+def sum_rotary_bands(boreholes: list[Borehole], method: DrillingMethod) -> list[float]:
+    """Boreholes row 92 for one method: each band column summed over all boreholes.
+
+    Also read by Section H (SPT counts in rotary drillholes), as in the Calculator.
+    """
     bands = [0.0, 0.0, 0.0, 0.0]
     for bh in boreholes:
         for i, metres in enumerate(_rotary_band_distribution(bh, method)):

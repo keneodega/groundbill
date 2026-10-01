@@ -88,6 +88,28 @@ def test_column_widths_match_contractor_boq_reference(tmp_path: Path):
     assert ws.column_dimensions["C"].width == 10.2
 
 
+def test_subheading_is_written_on_its_own_row_above_first_item(tmp_path: Path):
+    out = generate_boq(build_basic_site(), tmp_path / "boq.xlsx")
+    ws = load_workbook(out)["Section G"]
+
+    assert ws["A9"].value == "G"
+    assert ws["B9"].value == "Geophysical testing"
+
+    # Row 10 is the sub-heading (column B only); the first item follows on row 11.
+    assert ws["A10"].value is None
+    assert ws["B10"].value == "Land-based mapping techniques"
+    assert ws["B10"].font.bold is True
+    assert ws["B10"].font.underline == "single"
+    assert ws["A11"].value == "G1"
+    assert ws["C11"].value == "m²"
+    assert ws["F11"].value == '=IFERROR(D11*E11,"")'
+
+    # Same row positions as the reference workbook: G6 on row 17, G10 on row 22.
+    assert ws["B16"].value == "Borehole geophysical surveying"
+    assert ws["A17"].value == "G6"
+    assert ws["A22"].value == "G10"
+
+
 def _find_row_by_code(ws, code: str) -> int:
     for r in range(10, ws.max_row + 1):
         if ws.cell(row=r, column=1).value == code:

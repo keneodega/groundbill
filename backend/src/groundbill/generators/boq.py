@@ -9,6 +9,9 @@ Produces a Bill of Quantities workbook whose layout matches
 - Row 9 is the section heading (code and title, bold).
 - Row 10 onwards is one BOQ item per row across columns A-F:
   A=Number, B=Item description, C=Unit, D=Quantity, E=Rate, F=Amount.
+- Where an item carries a ``subheading``, that text is written on its own row
+  (column B, bold and underlined) immediately above the item, as in the
+  reference workbook.
 
 The Amount cell is written as ``=IFERROR(D*E, "")`` so it resolves to the
 priced total once the contractor fills in the Rate column, and stays blank
@@ -57,6 +60,7 @@ _COLUMN_WIDTHS = {
 }
 
 _BOLD = Font(bold=True)
+_SUBHEADING = Font(bold=True, underline="single")
 
 _HEADERS = ("Number", "Item description", "Unit", "Quantity", "Rate", "Amount")
 
@@ -103,7 +107,7 @@ _SECTIONS: list[tuple[str, str, str, Callable[[Project], list[BoqItem]]]] = [
     (
         "Section G",
         "G",
-        "Geophysical Testing",
+        "Geophysical testing",
         compute_section_g,
     ),
     (
@@ -171,10 +175,15 @@ def _write_section(ws: Worksheet, code: str, title: str, items: list[BoqItem]) -
     title_cell = ws.cell(row=_SECTION_HEADING_ROW, column=2, value=title)
     title_cell.font = _BOLD
 
-    for offset, item in enumerate(items):
-        r = _FIRST_ITEM_ROW + offset
+    r = _FIRST_ITEM_ROW
+    for item in items:
+        if item.subheading is not None:
+            heading_cell = ws.cell(row=r, column=2, value=item.subheading)
+            heading_cell.font = _SUBHEADING
+            r += 1
         ws.cell(row=r, column=1, value=item.code)
         ws.cell(row=r, column=2, value=item.description)
         ws.cell(row=r, column=3, value=item.unit)
         ws.cell(row=r, column=4, value=item.quantity)
         ws.cell(row=r, column=6, value=f'=IFERROR(D{r}*E{r},"")')
+        r += 1

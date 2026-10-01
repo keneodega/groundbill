@@ -59,8 +59,9 @@ class Borehole(_HoleBase):
 class TrialPit(_HoleBase):
     """Source sheet: 'Trial Pits'.
 
-    Derived columns (O-R depth bands; T-Y perimeter / area / volumes;
-    AA-AB asphalt areas) are computed by the engine.
+    Derived columns (I 'Completed', ``=IF(M2>0,1,0)``; O-R depth bands;
+    T-Y perimeter / area / volumes; AA-AB asphalt areas) are computed by the
+    engine.
     """
 
     trial_pit_number: str = Field(description="Col A")
@@ -70,7 +71,6 @@ class TrialPit(_HoleBase):
     traffic_management: bool = Field(default=False, description="Col E")
     road: str | None = Field(default=None, description="Col F")
     schedule_depth_m: float = Field(gt=0, description="Col H")
-    completed: bool = Field(default=False, description="Col I")
     in_situ_tests: set[InSituTest] = Field(
         default_factory=set, description="Col J — 'Insitu Tests'"
     )
@@ -85,7 +85,8 @@ class Trench(_HoleBase):
 
     A single trench can cross paved and non-paved ground, so three dimension
     sets are captured: OVERALL (cols H-J), PAVED (cols M-P), NON-PAVED
-    (cols Y-AA). Derived volumes and areas are computed by the engine.
+    (cols Y-AA). Derived columns (K 'completed', ``=IF(J3>0,1,0)``; volumes
+    and areas) are computed by the engine.
     """
 
     trench_number: str = Field(description="Col A — 'Trench'")
@@ -98,7 +99,6 @@ class Trench(_HoleBase):
     overall_length_m: float | None = Field(default=None, description="Col H")
     overall_width_m: float | None = Field(default=None, description="Col I")
     overall_total_depth_m: float | None = Field(default=None, description="Col J")
-    completed: bool = Field(default=False, description="Col K")
     paved_length_m: float | None = Field(default=None, description="Col M")
     paved_width_m: float | None = Field(default=None, description="Col N")
     paved_depth_m: float | None = Field(default=None, description="Col O")
@@ -109,7 +109,11 @@ class Trench(_HoleBase):
 
 
 class InspectionPit(_HoleBase):
-    """Source sheet: 'Inspection pit' (Excel header 'Inspectoin Pit' is a typo)."""
+    """Source sheet: 'Inspection pit' (Excel header 'Inspectoin Pit' is a typo).
+
+    Derived columns (H 'Completed', ``=IF(E2>0,1,0)``; J 'Volume of hard
+    Surface', ``=F2*G2*I2``) are computed by the engine.
+    """
 
     inspection_pit_number: str = Field(description="Col A")
     scheduled_depth_m: float = Field(gt=0, description="Col B")
@@ -118,7 +122,6 @@ class InspectionPit(_HoleBase):
     recorded_depth_m: float | None = Field(default=None, description="Col E")
     recorded_length_m: float | None = Field(default=None, description="Col F")
     recorded_width_m: float | None = Field(default=None, description="Col G")
-    completed: bool = Field(default=False, description="Col H")
     depth_hard_surface_obstruction_m: float | None = Field(default=None, description="Col I")
     in_situ_tests: set[InSituTest] = Field(
         default_factory=set, description="Col K — 'Insitu Tests'"

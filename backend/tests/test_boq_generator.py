@@ -71,13 +71,15 @@ def test_empty_project_produces_zero_for_a8(tmp_path: Path):
     assert ws.cell(row=a8_row, column=4).value == 0
 
 
-def test_yellow_site_emits_yellow_extra_over_items(tmp_path: Path):
+def test_section_a_rows_match_reference_positions_for_any_category(tmp_path: Path):
     project = build_basic_site().model_copy(update={"site_category": SiteCategory.YELLOW})
     out = generate_boq(project, tmp_path / "boq.xlsx")
     _, ws = _load(out)
-    codes = _all_codes(ws)
-    assert "A3.1" in codes
-    assert "A3.2" not in codes
+    # Same row positions as 4_BOQ_Contractor_Rev_A.xlsx.
+    assert ws["A21"].value == "A3.1"
+    assert ws["A26"].value == "A5.2"
+    assert ws["A35"].value == "A8"
+    assert ws["A70"].value == "A31"
 
 
 def test_column_widths_match_contractor_boq_reference(tmp_path: Path):

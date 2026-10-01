@@ -41,43 +41,31 @@ def test_a8_is_zero_for_empty_project():
     assert _by_code(items, "A8.1").quantity == 0
 
 
-def test_green_site_omits_yellow_and_red_only_items():
-    project = build_basic_site()  # GREEN
-    codes = set(_codes(compute_section_a(project)))
-    for omitted in ("A3.1", "A3.2", "A4.1", "A4.2", "A5.1", "A5.2"):
-        assert omitted not in codes
+def test_all_61_items_are_listed_for_every_site_category():
+    # Decision of 2026-10-01: Section A does not vary with the site category.
+    codes_a3_to_a5 = {"A3.1", "A3.2", "A4.1", "A4.2", "A5.1", "A5.2"}
+    green = compute_section_a(build_basic_site())
+    assert len(green) == 61
+    assert codes_a3_to_a5 <= set(_codes(green))
+    for category in (SiteCategory.YELLOW, SiteCategory.RED):
+        project = build_basic_site().model_copy(update={"site_category": category})
+        assert compute_section_a(project) == green, category
 
 
-def test_yellow_site_emits_yellow_extras_and_not_red():
-    project = build_basic_site()
-    project = project.model_copy(update={"site_category": SiteCategory.YELLOW})
-    codes = set(_codes(compute_section_a(project)))
-    assert {"A3.1", "A4.1", "A5.1"}.issubset(codes)
-    assert not {"A3.2", "A4.2", "A5.2"} & codes
+def test_a2_items_always_describe_a_green_category_site():
+    items = compute_section_a(
+        build_basic_site().model_copy(update={"site_category": SiteCategory.RED})
+    )
+    for code in ["A2"] + [f"A2.{n}" for n in range(1, 10)]:
+        assert "for a Green Category site" in _by_code(items, code).description, code
 
 
-def test_red_site_emits_red_extras_and_not_yellow():
-    project = build_basic_site()
-    project = project.model_copy(update={"site_category": SiteCategory.RED})
-    codes = set(_codes(compute_section_a(project)))
-    assert {"A3.2", "A4.2", "A5.2"}.issubset(codes)
-    assert not {"A3.1", "A4.1", "A5.1"} & codes
-
-
-def test_a2_description_reflects_site_category():
-    for category, expected in [
-        (SiteCategory.GREEN, "Green Category site"),
-        (SiteCategory.YELLOW, "Yellow Category site"),
-        (SiteCategory.RED, "Red Category site"),
-    ]:
-        project = Project(
-            name="X",
-            site_address="Y",
-            contract_route=ContractRoute.PRIVATE,
-            site_category=category,
-        )
-        a2 = _by_code(compute_section_a(project), "A2")
-        assert expected in a2.description
+def test_a3_to_a5_extra_overs_are_not_required():
+    items = compute_section_a(build_basic_site())
+    for code in ("A3.1", "A3.2", "A4.1", "A4.2", "A5.1", "A5.2"):
+        item = _by_code(items, code)
+        assert item.quantity == "Not Required", code
+        assert item.unit == "provisional sum", code
 
 
 def test_manual_entry_placeholders_are_carried_through():
@@ -89,21 +77,18 @@ def test_manual_entry_placeholders_are_carried_through():
     assert _by_code(items, "A26").quantity is None
 
 
-def test_section_a_emits_expected_item_count_per_category():
-    project = build_basic_site()
-    green_count = len(compute_section_a(project))
-
-    yellow_project = project.model_copy(update={"site_category": SiteCategory.YELLOW})
-    yellow_count = len(compute_section_a(yellow_project))
-
-    red_project = project.model_copy(update={"site_category": SiteCategory.RED})
-    red_count = len(compute_section_a(red_project))
-
-    assert yellow_count == green_count + 3
-    assert red_count == green_count + 3
-
-
 def test_item_codes_are_unique_within_section_a():
     items = compute_section_a(build_basic_site())
     codes = _codes(items)
     assert len(codes) == len(set(codes)), f"duplicate codes in Section A: {codes}"
+
+
+def test_texts_and_units_follow_the_contractor_workbook():
+    items = {i.code: i for i in compute_section_a(build_basic_site())}
+    assert items["A16"].unit == "provisional sum"
+    assert items["A15"].description.endswith("on roads or pavement areas")
+    assert items["A6"].description.endswith(
+        "Note item to be remeasured with delivery dockets and records maintained by the "
+        "Contractor."
+    )
+    assert "(PROVISIONAL)" not in items["A2.3"].description

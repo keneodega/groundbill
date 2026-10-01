@@ -83,7 +83,7 @@ _SECTIONS: list[tuple[str, str, str, Callable[[Project], list[BoqItem]]]] = [
     (
         "Section C",
         "C",
-        "Rotary Drilling",
+        "Rotary drilling",
         compute_section_c,
     ),
     (

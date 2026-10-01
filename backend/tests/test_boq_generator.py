@@ -48,7 +48,7 @@ def test_a8_quantity_is_written_as_integer(tmp_path: Path):
     _, ws = _load(out)
 
     a8_row = _find_row_by_code(ws, "A8")
-    assert ws.cell(row=a8_row, column=4).value == 9
+    assert ws.cell(row=a8_row, column=4).value == 7
     assert ws.cell(row=a8_row, column=3).value == "Nr"
 
 

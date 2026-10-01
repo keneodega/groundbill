@@ -1,7 +1,14 @@
 """Tests for the Section A calculation engine."""
 
 from groundbill.engine import BoqItem, compute_section_a
-from groundbill.models import ContractRoute, Project, SiteCategory
+from groundbill.models import (
+    ContractRoute,
+    InspectionPit,
+    Project,
+    SiteCategory,
+    Soakaway,
+    Trench,
+)
 from tests.fixtures.basic_site import build_basic_site
 
 
@@ -20,8 +27,34 @@ def test_a8_counts_all_hole_types_with_trenches_double_counted():
     items = compute_section_a(project)
 
     a8 = _by_code(items, "A8")
-    assert a8.quantity == 9  # 3 BH + 2 TP + (1 trench * 2) + 1 CPT + 1 DS
+    # 3 BH + 2 TP + (0 dug trenches × 2) + 1 CPT + 1 DS — ST01 has no recorded depth yet
+    assert a8.quantity == 7
     assert a8.unit == "Nr"
+
+
+def test_a8_counts_trenches_inspection_pits_and_soakaways_only_once_dug():
+    # Trenches!K, 'Inspection pit'!H and 'Soakaway (BRE)'!E are =IF(depth>0,1,0).
+    project = Project(
+        name="Dug and undug",
+        site_address="Nowhere",
+        contract_route=ContractRoute.PRIVATE,
+        trenches=[
+            Trench(trench_number="TR01", overall_total_depth_m=1.5),
+            Trench(trench_number="TR02"),
+        ],
+        inspection_pits=[
+            InspectionPit(
+                inspection_pit_number="IP01", scheduled_depth_m=1.2, recorded_depth_m=1.2
+            ),
+            InspectionPit(inspection_pit_number="IP02", scheduled_depth_m=1.2),
+        ],
+        soakaways=[
+            Soakaway(soakaway_id="SK01", schedule_depth_m=2.0, depth_m=2.0),
+            Soakaway(soakaway_id="SK02", schedule_depth_m=2.0),
+        ],
+    )
+    # 2 × TR01 + IP01 + SK01
+    assert _by_code(compute_section_a(project), "A8").quantity == 4
 
 
 def test_a8_1_mirrors_a8():

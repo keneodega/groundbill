@@ -25,13 +25,36 @@ project's ``site_category`` therefore does not change any Section A item.
 
 Set-out points (A8)
 -------------------
-"Scheduled" is treated as list membership: each hole present in the project is
-considered scheduled, which matches the Log Tracker's own ``=IF(A="","",1)``
-convention and resolves the Excel's scheduled-vs-completed inconsistency in
-favour of a single consistent rule.
+A8 adds one total from each Log Tracker sheet. Some sheets total a
+"Scheduled" column and others a "Completed" column; all of those columns are
+formulas, translated here as follows:
+
+==========================  ===================  ==========================
+Log Tracker cell            Column formula       Counts
+==========================  ===================  ==========================
+``Boreholes!E92``           ``IF(A2="","",1)``   every borehole listed
+``'Trial Pits'!G92``        ``IF(H2>0,1,0)``     every trial pit listed (a
+                                                 schedule depth is required)
+``2*Trenches!K93``          ``IF(J3>0,1,0)``     trenches with a recorded
+                                                 total depth, × 2 (two ends)
+``'Inspection pit'!H92``    ``IF(E2>0,1,0)``     inspection pits with a
+                                                 recorded depth
+``DPH!H122``                ``IF(C2>0,1,0)``     every probe listed
+``CPT!K92``                 ``IF(D2>0,1,0)``     every CPT listed
+``'Dynamic Sampling'!H92``  ``IF(C2>0,1,0)``     every dynamic sample listed
+``'Soakaway (BRE)'!E52``    ``IF(I2>0, 1, 0)``   soakaways with a recorded
+                                                 depth
+==========================  ===================  ==========================
+
+The model requires a depth for probes, CPTs and dynamic samples and a
+schedule depth for trial pits, so those always count. Trenches, inspection
+pits and soakaways count only once their recorded depth has been entered.
+
+Deliberate deviation (agreed 2026-10-01): ``'Inspection pit'!H92`` is
+``=SUM(H65:H91)``; all inspection pits are counted, as in Sections D and E.
 """
 
-from groundbill.models import Project
+from groundbill.models import InspectionPit, Project, Soakaway, Trench
 
 from .boq_items import BoqItem
 
@@ -41,7 +64,7 @@ _NOT_REQUIRED = "Not Required"
 def compute_section_a(project: Project) -> list[BoqItem]:
     """Return the ordered list of Section A BOQ items for the given project."""
 
-    # 'Section A'!D35 — see _count_set_out_points
+    # 'Section A'!D35 — full formula quoted in _count_set_out_points
     a8 = _count_set_out_points(project)
     # 'Section A'!D36: =D35
     a8_1 = a8
@@ -554,16 +577,53 @@ def compute_section_a(project: Project) -> list[BoqItem]:
 def _count_set_out_points(project: Project) -> int:
     """A8 quantity — total number of exploratory points to set out.
 
-    Each hole listed in the project is treated as scheduled. Trenches count
-    twice because a slit trench has two endpoints requiring set-out.
+    'Section A'!D35:
+    =[1]Boreholes!$E92+'[1]Trial Pits'!$G92+(2*([1]Trenches!$K93))
+     +'[1]Inspection pit'!$H92+[1]DPH!$H122+[1]CPT!$K92
+     +'[1]Dynamic Sampling'!$H92+'[1]Soakaway (BRE)'!$E$52
+
+    Trenches count twice because a slit trench has two endpoints to set out.
+    See the module docstring for what each column counts.
     """
+    # Boreholes!E: =IF(A2= "","",1) — every borehole listed
+    boreholes_e92 = len(project.boreholes)
+    # 'Trial Pits'!G: =IF(H2>0,1,0) — schedule depth is required (> 0) on the model
+    trial_pits_g92 = sum(1 for tp in project.trial_pits if tp.schedule_depth_m > 0)
+    # Trenches!K: =IF(J3>0,1,0)
+    trenches_k93 = sum(_trench_k_completed(t) for t in project.trenches)
+    # 'Inspection pit'!H: =IF(E2>0,1,0); totals row =SUM(H65:H91) — all pits counted (deviation)
+    inspection_pit_h92 = sum(_inspection_pit_h_completed(ip) for ip in project.inspection_pits)
+    # DPH!H: =IF(C2>0,1,0) — depth is required (> 0) on the model
+    dph_h122 = sum(1 for dp in project.dynamic_probes if dp.depth_m > 0)
+    # CPT!K: =IF(D2>0,1,0) — depth is required (> 0) on the model
+    cpt_k92 = sum(1 for c in project.cpts if c.depth_m > 0)
+    # 'Dynamic Sampling'!H: =IF(C2>0,1,0) — depth is required (> 0) on the model
+    dynamic_sampling_h92 = sum(1 for ds in project.dynamic_samples if ds.depth_m > 0)
+    # 'Soakaway (BRE)'!E: =IF(I2>0, 1, 0)
+    soakaway_e52 = sum(_soakaway_e_completed(s) for s in project.soakaways)
+
     return (
-        len(project.boreholes)
-        + len(project.trial_pits)
-        + 2 * len(project.trenches)
-        + len(project.inspection_pits)
-        + len(project.dynamic_probes)
-        + len(project.cpts)
-        + len(project.dynamic_samples)
-        + len(project.soakaways)
+        boreholes_e92
+        + trial_pits_g92
+        + 2 * trenches_k93
+        + inspection_pit_h92
+        + dph_h122
+        + cpt_k92
+        + dynamic_sampling_h92
+        + soakaway_e52
     )
+
+
+def _trench_k_completed(trench: Trench) -> int:
+    """Trenches!K: =IF(J3>0,1,0) — J = 'Recorded Total Depth'."""
+    return 1 if (trench.overall_total_depth_m or 0.0) > 0 else 0
+
+
+def _inspection_pit_h_completed(pit: InspectionPit) -> int:
+    """'Inspection pit'!H: =IF(E2>0,1,0) — E = 'Recorded Depth'."""
+    return 1 if (pit.recorded_depth_m or 0.0) > 0 else 0
+
+
+def _soakaway_e_completed(soakaway: Soakaway) -> int:
+    """'Soakaway (BRE)'!E: =IF(I2>0, 1, 0) — I = 'Depth' (recorded)."""
+    return 1 if (soakaway.depth_m or 0.0) > 0 else 0

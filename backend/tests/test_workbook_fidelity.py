@@ -5,8 +5,8 @@ For each re-translated section this reads the corresponding sheet of
 asserts that the engine emits the same item codes, descriptions, units and
 sub-headings, in the same order.
 
-Sections C to L are covered. Sections A and B pre-date this guard and are not
-yet registered.
+Sections B to L are covered. Section A is not yet registered: it omits
+A3.1-A5.2 for a Green site, which the workbook always lists.
 """
 
 import re
@@ -18,6 +18,7 @@ from openpyxl import load_workbook
 
 from groundbill.engine import (
     BoqItem,
+    compute_section_b,
     compute_section_c,
     compute_section_d,
     compute_section_e,
@@ -39,6 +40,7 @@ _CONTRACTOR_BOQ = (
 _FIRST_BODY_ROW = 10
 
 _VERIFIED_SECTIONS: dict[str, Callable[[Project], list[BoqItem]]] = {
+    "B": compute_section_b,
     "C": compute_section_c,
     "D": compute_section_d,
     "E": compute_section_e,

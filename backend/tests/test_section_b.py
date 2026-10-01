@@ -198,3 +198,18 @@ def test_section_b_item_count_is_stable():
     assert len(compute_section_b(_empty_project())) == len(
         compute_section_b(build_section_b_site())
     )
+
+
+def test_b3_1_unit_is_cubic_metres():
+    # Contractor workbook uses "m³"; the Calculator has "m3".
+    assert _by_code(compute_section_b(_empty_project()), "B3.1").unit == "m³"
+
+
+def test_subheadings_sit_on_first_item_of_each_group():
+    subheadings = {
+        i.code: i.subheading for i in compute_section_b(_empty_project()) if i.subheading
+    }
+    assert subheadings == {
+        "B13": "Dynamic sampling (Window and Windowless Sampling)",
+        "B22": "Reinstatement of Cable Percussive Borehole and Dynamic Sample Borehole",
+    }

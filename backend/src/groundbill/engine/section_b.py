@@ -177,7 +177,7 @@ def compute_section_b(project: Project) -> list[BoqItem]:
                 "Break out obstructions where present when hand digging at exploratory "
                 "hole location for Item B3."
             ),
-            unit="m3",
+            unit="m³",
             quantity=b3_1,
         ),
         BoqItem(
@@ -248,6 +248,7 @@ def compute_section_b(project: Project) -> list[BoqItem]:
             description="Move dynamic sampling equipment to the site of each exploratory hole and set up",
             unit="nr",
             quantity=ds_count,
+            subheading="Dynamic sampling (Window and Windowless Sampling)",
         ),
         BoqItem(
             code="B14",
@@ -312,6 +313,7 @@ def compute_section_b(project: Project) -> list[BoqItem]:
             description="Reinstatement of gravel hardstanding",
             unit="m²",
             quantity="Included in B1.1 & B1.2",
+            subheading="Reinstatement of Cable Percussive Borehole and Dynamic Sample Borehole",
         ),
         BoqItem(
             code="B23",

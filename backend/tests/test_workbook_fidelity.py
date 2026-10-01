@@ -18,6 +18,7 @@ from openpyxl import load_workbook
 
 from groundbill.engine import (
     BoqItem,
+    compute_section_e,
     compute_section_g,
     compute_section_j,
     compute_section_l,
@@ -32,6 +33,7 @@ _CONTRACTOR_BOQ = (
 _FIRST_BODY_ROW = 10
 
 _VERIFIED_SECTIONS: dict[str, Callable[[Project], list[BoqItem]]] = {
+    "E": compute_section_e,
     "G": compute_section_g,
     "J": compute_section_j,
     "L": compute_section_l,

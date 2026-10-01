@@ -95,7 +95,7 @@ _SECTIONS: list[tuple[str, str, str, Callable[[Project], list[BoqItem]]]] = [
     (
         "Section E",
         "E",
-        "Sampling and Monitoring",
+        "Sampling and monitoring during intrusive investigation",
         compute_section_e,
     ),
     (

@@ -22,8 +22,8 @@ So one laboratory suite is scheduled for every five environmental samples.
 The result is not rounded in the workbook and is not rounded here (6 samples
 give 1.2).
 
-The E12 count is computed locally by ``_e12_environmental_sample_count`` so
-this module does not depend on Section E's module.
+The E12 count is imported from the Section E module, mirroring the
+Calculator's own cross-sheet reference, so the rule lives in one place.
 
 Rows deliberately not translated
 --------------------------------
@@ -34,9 +34,10 @@ Descriptions are verbatim, including the unbalanced bracket at the end of the
 sub-heading.
 """
 
-from groundbill.models import InSituTest, Project, PSEVTest
+from groundbill.models import Project
 
 from .boq_items import BoqItem
+from .section_e import e12_environmental_sample_count
 
 _NOT_REQUIRED = "Not Required"
 
@@ -44,7 +45,8 @@ _NOT_REQUIRED = "Not Required"
 def compute_section_l(project: Project) -> list[BoqItem]:
     """Return the ordered list of Section L BOQ items for the given project."""
 
-    e12 = _e12_environmental_sample_count(project)
+    # 'Section E'!D25 (E12): count of holes with "EV" selected
+    e12 = e12_environmental_sample_count(project)
     # 'Section E'!D29 (E16): =D25
     e16 = e12
 
@@ -98,26 +100,3 @@ def compute_section_l(project: Project) -> list[BoqItem]:
             quantity=_NOT_REQUIRED,
         ),
     ]
-
-
-def _e12_environmental_sample_count(project: Project) -> int:
-    """Count exploratory holes with "EV" in their test selection (Section E item E12).
-
-    'Section E'!D25:
-    =COUNTIF('[1]Trial Pits'!$J$2:$J91,"*EV*")
-     +COUNTIF('[1]Inspection pit'!$K$2:$K91,"*EV*")
-     +COUNTIF([1]Trenches!$G$3:$G92,"*EV*")
-     +COUNTIF([1]Boreholes!$G$2:$G91,"*EV*")
-     +COUNTIF('[1]Dynamic Sampling'!$J$2:$J91,"*EV*")
-
-    The ``*EV*`` wildcard matches any cell containing "EV", so a combined
-    selection such as "DCP/EV" still counts once. In the Python model each
-    hole holds a set of tests, so the equivalent check is "EV is in the set".
-    """
-    return (
-        sum(1 for tp in project.trial_pits if InSituTest.EV in tp.in_situ_tests)
-        + sum(1 for ip in project.inspection_pits if InSituTest.EV in ip.in_situ_tests)
-        + sum(1 for t in project.trenches if InSituTest.EV in t.in_situ_tests)
-        + sum(1 for bh in project.boreholes if PSEVTest.EV in bh.tests)
-        + sum(1 for ds in project.dynamic_samples if PSEVTest.EV in ds.tests)
-    )

@@ -15,6 +15,10 @@ class BoqItem(BaseModel):
     set only on the first item beneath each heading; the generator writes the
     heading as its own row immediately above that item.
 
+    ``note`` carries the workbook's occasional footnote rows (plain text in
+    column B beneath an item, e.g. "Note: rates for permeability test ...").
+    The generator writes it on its own row immediately below the item.
+
     ``subheading_code`` is for sections whose heading rows are numbered in
     column A (Section K: "K1  Classification", "K2  Chemical and
     electrochemical", ...). It is written beside the heading text.
@@ -33,4 +37,8 @@ class BoqItem(BaseModel):
     subheading_code: str | None = Field(
         default=None,
         description="Code shown in column A of the sub-heading row, e.g. 'K1' (Section K only)",
+    )
+    note: str | None = Field(
+        default=None,
+        description="Footnote row that follows this item in the workbook, if any",
     )

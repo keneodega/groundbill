@@ -198,3 +198,13 @@ def test_subheadings_sit_on_first_item_of_each_group():
         "H30": "Plate Bearing Test",
         "H35": "Other specialist tests",
     }
+
+
+def test_footnote_is_carried_on_h18():
+    items = compute_section_h(_project())
+    notes = {i.code: i.note for i in items if i.note}
+    assert notes == {
+        "H18": (
+            "Note: rates for permeability test in boreholes or rotary holes to include standing time rate for plant and equipment"
+        )
+    }

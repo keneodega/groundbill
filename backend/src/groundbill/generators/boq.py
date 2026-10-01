@@ -13,6 +13,8 @@ Produces a Bill of Quantities workbook whose layout matches
   (column B, bold and underlined) immediately above the item, as in the
   reference workbook. If it also carries a ``subheading_code`` (Section K),
   the code goes in column A of that row, in bold.
+- Where an item carries a ``note``, it is written in plain text in column B
+  on the row immediately below the item.
 
 The Amount cell is written as ``=IFERROR(D*E, "")`` so it resolves to the
 priced total once the contractor fills in the Rate column, and stays blank
@@ -191,3 +193,6 @@ def _write_section(ws: Worksheet, code: str, title: str, items: list[BoqItem]) -
         ws.cell(row=r, column=4, value=item.quantity)
         ws.cell(row=r, column=6, value=f'=IFERROR(D{r}*E{r},"")')
         r += 1
+        if item.note is not None:
+            ws.cell(row=r, column=2, value=item.note)
+            r += 1

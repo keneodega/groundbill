@@ -63,12 +63,11 @@ All translated literally:
   D59=1", which refers to rows that have since moved; the formula itself
   points at D56 (H30) and is what is translated.
 
-Rows deliberately not translated
---------------------------------
-- Row 41, "Note: rates for permeability test in boreholes or rotary holes to
-  include standing time rate for plant and equipment", is a footnote beneath
-  the permeability items rather than a BOQ item or sub-heading. ``BoqItem``
-  has no way to carry a trailing note, so it is not emitted.
+Footnote
+--------
+Row 41, "Note: rates for permeability test in boreholes or rotary holes to
+include standing time rate for plant and equipment", is carried as the
+``note`` of H18, so the generator writes it on row 41 as in the workbook.
 
 Descriptions are verbatim, including the workbook's own slips (H21 refers to
 "H18", H33 to "Items H29-H31", "steelement" and "valu" in H34).
@@ -383,6 +382,11 @@ def compute_section_h(project: Project) -> list[BoqItem]:
             description="Set up and execute packer permeability test in rotary borehole (10 to 20m)",
             unit="hr",
             quantity=_NOT_REQUIRED,
+            # Row 41 footnote
+            note=(
+                "Note: rates for permeability test in boreholes or rotary holes to include "
+                "standing time rate for plant and equipment"
+            ),
         ),
         # 'Section H'!D43: COUNTIF of "*BRE*" — full formula quoted above
         BoqItem(

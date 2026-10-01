@@ -129,6 +129,26 @@ def test_coded_subheading_writes_its_code_in_column_a(tmp_path: Path):
     assert ws["A126"].value == "K9.3"
 
 
+def test_footnotes_are_written_below_their_items(tmp_path: Path):
+    out = generate_boq(build_basic_site(), tmp_path / "boq.xlsx")
+    wb = load_workbook(out)
+
+    ws = wb["Section H"]
+    # Same row positions as the reference workbook: H18 row 40, note row 41,
+    # "Soil infiltration test" sub-heading row 42, H19 row 43.
+    assert ws["A40"].value == "H18"
+    assert ws["A41"].value is None
+    assert ws["B41"].value.startswith("Note: rates for permeability test")
+    assert ws["B41"].font.bold is not True
+    assert ws["B42"].value == "Soil infiltration test (BRE Digest 365)"
+    assert ws["A43"].value == "H19"
+    assert ws["A67"].value == "H40"
+
+    ws = wb["Section E"]
+    assert ws["A30"].value == "E17"
+    assert ws["B31"].value == "(Note sample rate includes provision of specialist containers)"
+
+
 def _find_row_by_code(ws, code: str) -> int:
     for r in range(10, ws.max_row + 1):
         if ws.cell(row=r, column=1).value == code:

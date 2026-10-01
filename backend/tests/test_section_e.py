@@ -128,3 +128,9 @@ def test_subheadings_sit_on_first_item_of_each_group():
 
 def test_all_units_are_nr():
     assert {i.unit for i in compute_section_e(_empty_project())} == {"nr"}
+
+
+def test_footnote_is_carried_on_e17():
+    items = compute_section_e(_empty_project())
+    notes = {i.code: i.note for i in items if i.note}
+    assert notes == {"E17": ("(Note sample rate includes provision of specialist containers)")}

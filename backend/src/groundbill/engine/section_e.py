@@ -48,11 +48,12 @@ Open items for review (by Havilah)
   E2 is therefore always 0, whatever the trenches' dimensions. Translated
   literally pending confirmation of the intended source column.
 
-Rows deliberately not translated
---------------------------------
-- Row 32, "(Note sample rate includes provision of specialist containers)",
-  is a footnote beneath the last item rather than a BOQ item or sub-heading.
-  ``BoqItem`` has no way to carry a trailing note, so it is not emitted.
+Footnote
+--------
+Row 32, "(Note sample rate includes provision of specialist containers)", is
+carried as the ``note`` of E17. The workbook leaves one blank row (31) between
+E17 and the note; the generator writes the note directly below E17. Nothing
+follows it in the section, so no other row positions are affected.
 
 Descriptions are verbatim, including the workbook's spacing ("Open tube-
 thick walled sample").
@@ -230,6 +231,8 @@ def compute_section_e(project: Project) -> list[BoqItem]:
             ),
             unit="nr",
             quantity=_NOT_REQUIRED,
+            # Row 32 footnote
+            note="(Note sample rate includes provision of specialist containers)",
         ),
     ]
 

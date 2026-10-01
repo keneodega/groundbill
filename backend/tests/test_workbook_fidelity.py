@@ -2,8 +2,8 @@
 
 For each re-translated section this reads the corresponding sheet of
 `reference/excel/4_BOQ_Contractor_Rev_A.xlsx` (the issued Contractor BOQ) and
-asserts that the engine emits the same item codes, descriptions, units and
-sub-headings, in the same order.
+asserts that the engine emits the same item codes, descriptions, units,
+sub-headings and footnotes, in the same order.
 
 All twelve sections, A to L, are covered.
 """
@@ -65,24 +65,32 @@ def contractor_boq():
     return load_workbook(_CONTRACTOR_BOQ)
 
 
-def _workbook_rows(ws) -> list[tuple[str, str, str, str | None, str | None]]:
-    """Return (code, description, unit, sub-heading above, its code) for each item row.
+_Row = tuple[str, str, str, str | None, str | None, str | None]
+
+
+def _workbook_rows(ws) -> list[_Row]:
+    """Return (code, description, unit, sub-heading, its code, note) for each item row.
 
     An item row has a code in column A and a unit in column C. A sub-heading
     row has text in column B and no unit; it is attached to the next item row.
-    In Section K the sub-heading rows also carry a code in column A.
+    In Section K the sub-heading rows also carry a code in column A. A footnote
+    row has text beginning "Note" or "(Note" in column B; it is attached to the
+    item row above it.
     """
-    rows: list[tuple[str, str, str, str | None, str | None]] = []
+    rows: list[_Row] = []
     pending_subheading: str | None = None
     pending_code: str | None = None
     for r in range(_FIRST_BODY_ROW, ws.max_row + 1):
         code, desc, unit = (_norm(ws.cell(r, c).value) for c in (1, 2, 3))
         if code and unit:
-            rows.append((code, desc, unit, pending_subheading, pending_code))
+            rows.append((code, desc, unit, pending_subheading, pending_code, None))
             pending_subheading = pending_code = None
         elif desc:
             if desc.lower().startswith("total "):
                 break
+            if re.match(r"\(?note\b", desc, re.IGNORECASE) and not code:
+                rows[-1] = (*rows[-1][:5], desc)
+                continue
             pending_subheading = desc
             pending_code = code or None
     return rows
@@ -93,7 +101,14 @@ def test_engine_matches_contractor_workbook(contractor_boq, letter: str):
     expected = _workbook_rows(contractor_boq[f"Section {letter}"])
     project = Project(name="Empty", site_address="Nowhere", contract_route=ContractRoute.PRIVATE)
     actual = [
-        (i.code, _norm(i.description), _norm(i.unit), i.subheading, i.subheading_code)
+        (
+            i.code,
+            _norm(i.description),
+            _norm(i.unit),
+            i.subheading,
+            i.subheading_code,
+            _norm(i.note) or None,
+        )
         for i in _VERIFIED_SECTIONS[letter](project)
     ]
     assert actual == expected

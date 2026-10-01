@@ -157,19 +157,25 @@ class Soakaway(_HoleBase):
 
 
 class DynamicProbe(_HoleBase):
-    """Source sheet: 'DPH' (Dynamic Probe Heavy)."""
+    """Source sheet: 'DPH' (Dynamic Probe Heavy).
+
+    Column H ('Completed') is a formula, ``=IF(C2>0,1,0)``, so it is derived
+    by the engine from the depth rather than stored here.
+    """
 
     probe_number: str = Field(description="Col A — 'DPH'")
     slope_over_20pct: bool = Field(default=False, description="Col B")
     depth_m: float = Field(gt=0, description="Col C")
-    completed: bool = Field(default=False, description="Col H")
 
 
 class CPT(_HoleBase):
-    """Source sheet: 'CPT' (Cone Penetration Test)."""
+    """Source sheet: 'CPT' (Cone Penetration Test).
+
+    Column K ('Completed') is a formula, ``=IF(D2>0,1,0)``, so it is derived
+    by the engine from the depth rather than stored here.
+    """
 
     cpt_number: str = Field(description="Col A — 'CPT'")
     slope_over_20pct: bool = Field(default=False, description="Col B")
     piezocone: bool = Field(default=False, description="Col C")
     depth_m: float = Field(gt=0, description="Col D")
-    completed: bool = Field(default=False, description="Col K")

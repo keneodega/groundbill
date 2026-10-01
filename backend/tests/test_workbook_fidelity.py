@@ -16,7 +16,12 @@ from pathlib import Path
 import pytest
 from openpyxl import load_workbook
 
-from groundbill.engine import BoqItem, compute_section_g, compute_section_j
+from groundbill.engine import (
+    BoqItem,
+    compute_section_g,
+    compute_section_j,
+    compute_section_l,
+)
 from groundbill.models import ContractRoute, Project
 
 _CONTRACTOR_BOQ = (
@@ -29,6 +34,7 @@ _FIRST_BODY_ROW = 10
 _VERIFIED_SECTIONS: dict[str, Callable[[Project], list[BoqItem]]] = {
     "G": compute_section_g,
     "J": compute_section_j,
+    "L": compute_section_l,
 }
 
 

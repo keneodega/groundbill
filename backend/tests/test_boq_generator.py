@@ -110,6 +110,23 @@ def test_subheading_is_written_on_its_own_row_above_first_item(tmp_path: Path):
     assert ws["A22"].value == "G10"
 
 
+def test_coded_subheading_writes_its_code_in_column_a(tmp_path: Path):
+    out = generate_boq(build_basic_site(), tmp_path / "boq.xlsx")
+    ws = load_workbook(out)["Section K"]
+
+    # Same row positions as the reference workbook: K1 heading on row 10, K1.1 on row 11.
+    assert ws["A10"].value == "K1"
+    assert ws["A10"].font.bold is True
+    assert ws["B10"].value == "Classification"
+    assert ws["B10"].font.underline == "single"
+    assert ws["A11"].value == "K1.1"
+    assert ws["A23"].value == "K2"
+    assert ws["A61"].value == "K5"
+    assert ws["C61"].value == "nr"  # K5 is an item row, not a heading
+    assert ws["A123"].value == "K.9"
+    assert ws["A126"].value == "K9.3"
+
+
 def _find_row_by_code(ws, code: str) -> int:
     for r in range(10, ws.max_row + 1):
         if ws.cell(row=r, column=1).value == code:

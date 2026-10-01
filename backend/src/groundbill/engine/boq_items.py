@@ -14,6 +14,10 @@ class BoqItem(BaseModel):
     underlined text in column B, e.g. "Land-based mapping techniques"). It is
     set only on the first item beneath each heading; the generator writes the
     heading as its own row immediately above that item.
+
+    ``subheading_code`` is for sections whose heading rows are numbered in
+    column A (Section K: "K1  Classification", "K2  Chemical and
+    electrochemical", ...). It is written beside the heading text.
     """
 
     model_config = ConfigDict(extra="forbid")
@@ -25,4 +29,8 @@ class BoqItem(BaseModel):
     subheading: str | None = Field(
         default=None,
         description="Sub-heading row that precedes this item in the workbook, if any",
+    )
+    subheading_code: str | None = Field(
+        default=None,
+        description="Code shown in column A of the sub-heading row, e.g. 'K1' (Section K only)",
     )

@@ -5,8 +5,8 @@ For each re-translated section this reads the corresponding sheet of
 asserts that the engine emits the same item codes, descriptions, units and
 sub-headings, in the same order.
 
-Sections are added to ``_VERIFIED_SECTIONS`` one at a time as each is
-re-translated from the workbook.
+Sections C to L are covered. Sections A and B pre-date this guard and are not
+yet registered.
 """
 
 import re
@@ -26,6 +26,7 @@ from groundbill.engine import (
     compute_section_h,
     compute_section_i,
     compute_section_j,
+    compute_section_k,
     compute_section_l,
 )
 from groundbill.models import ContractRoute, Project
@@ -46,6 +47,7 @@ _VERIFIED_SECTIONS: dict[str, Callable[[Project], list[BoqItem]]] = {
     "H": compute_section_h,
     "I": compute_section_i,
     "J": compute_section_j,
+    "K": compute_section_k,
     "L": compute_section_l,
 }
 
@@ -60,23 +62,26 @@ def contractor_boq():
     return load_workbook(_CONTRACTOR_BOQ)
 
 
-def _workbook_rows(ws) -> list[tuple[str, str, str, str | None]]:
-    """Return (code, description, unit, sub-heading above) for each item row of a sheet.
+def _workbook_rows(ws) -> list[tuple[str, str, str, str | None, str | None]]:
+    """Return (code, description, unit, sub-heading above, its code) for each item row.
 
     An item row has a code in column A and a unit in column C. A sub-heading
-    row has text in column B only; it is attached to the next item row.
+    row has text in column B and no unit; it is attached to the next item row.
+    In Section K the sub-heading rows also carry a code in column A.
     """
-    rows: list[tuple[str, str, str, str | None]] = []
+    rows: list[tuple[str, str, str, str | None, str | None]] = []
     pending_subheading: str | None = None
+    pending_code: str | None = None
     for r in range(_FIRST_BODY_ROW, ws.max_row + 1):
         code, desc, unit = (_norm(ws.cell(r, c).value) for c in (1, 2, 3))
         if code and unit:
-            rows.append((code, desc, unit, pending_subheading))
-            pending_subheading = None
-        elif desc and not code:
+            rows.append((code, desc, unit, pending_subheading, pending_code))
+            pending_subheading = pending_code = None
+        elif desc:
             if desc.lower().startswith("total "):
                 break
             pending_subheading = desc
+            pending_code = code or None
     return rows
 
 
@@ -85,7 +90,7 @@ def test_engine_matches_contractor_workbook(contractor_boq, letter: str):
     expected = _workbook_rows(contractor_boq[f"Section {letter}"])
     project = Project(name="Empty", site_address="Nowhere", contract_route=ContractRoute.PRIVATE)
     actual = [
-        (i.code, _norm(i.description), _norm(i.unit), i.subheading)
+        (i.code, _norm(i.description), _norm(i.unit), i.subheading, i.subheading_code)
         for i in _VERIFIED_SECTIONS[letter](project)
     ]
     assert actual == expected

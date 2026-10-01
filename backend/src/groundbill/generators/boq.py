@@ -11,7 +11,8 @@ Produces a Bill of Quantities workbook whose layout matches
   A=Number, B=Item description, C=Unit, D=Quantity, E=Rate, F=Amount.
 - Where an item carries a ``subheading``, that text is written on its own row
   (column B, bold and underlined) immediately above the item, as in the
-  reference workbook.
+  reference workbook. If it also carries a ``subheading_code`` (Section K),
+  the code goes in column A of that row, in bold.
 
 The Amount cell is written as ``=IFERROR(D*E, "")`` so it resolves to the
 priced total once the contractor fills in the Rate column, and stays blank
@@ -131,7 +132,7 @@ _SECTIONS: list[tuple[str, str, str, Callable[[Project], list[BoqItem]]]] = [
     (
         "Section K",
         "K",
-        "Geotechnical Laboratory Testing",
+        "Geotechnical laboratory testing",
         compute_section_k,
     ),
     (
@@ -178,6 +179,9 @@ def _write_section(ws: Worksheet, code: str, title: str, items: list[BoqItem]) -
     r = _FIRST_ITEM_ROW
     for item in items:
         if item.subheading is not None:
+            if item.subheading_code is not None:
+                heading_code_cell = ws.cell(row=r, column=1, value=item.subheading_code)
+                heading_code_cell.font = _BOLD
             heading_cell = ws.cell(row=r, column=2, value=item.subheading)
             heading_cell.font = _SUBHEADING
             r += 1

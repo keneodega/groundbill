@@ -1,17 +1,20 @@
-"""Tests for the Section D calculation engine."""
+"""Tests for the Section D calculation engine.
+
+Expected quantities come from ``tests/fixtures/section_d_site.py``, where the
+arithmetic is set out against the Calculator formulas. Row-for-row agreement
+of codes, descriptions and units with the reference workbook is checked in
+``test_workbook_fidelity.py``.
+"""
 
 import pytest
 
 from groundbill.engine import BoqItem, compute_section_d
-from groundbill.models import (
-    ContractRoute,
-    Project,
+from groundbill.models import ContractRoute, InspectionPit, Project, Trench, TrialPit
+from tests.fixtures.section_d_site import (
+    EXPECTED_D_COMPUTED,
+    EXPECTED_D_TEXT,
+    build_section_d_site,
 )
-from tests.fixtures.section_d_site import build_section_d_site
-
-
-def _codes(items: list[BoqItem]) -> list[str]:
-    return [i.code for i in items]
 
 
 def _by_code(items: list[BoqItem], code: str) -> BoqItem:
@@ -20,181 +23,202 @@ def _by_code(items: list[BoqItem], code: str) -> BoqItem:
     return matches[0]
 
 
-def _empty_project() -> Project:
+def _project(**holes) -> Project:
     return Project(
-        name="Empty",
-        site_address="Nowhere",
-        contract_route=ContractRoute.PRIVATE,
+        name="Test", site_address="Nowhere", contract_route=ContractRoute.PRIVATE, **holes
     )
 
 
-def test_d1_inspection_pit_completed_count():
+def _qty(project: Project, code: str):
+    return _by_code(compute_section_d(project), code).quantity
+
+
+def test_fixture_computed_quantities_match_hand_derived_values():
     items = compute_section_d(build_section_d_site())
-    assert _by_code(items, "D1").quantity == 1
+    for code, expected in EXPECTED_D_COMPUTED.items():
+        assert _by_code(items, code).quantity == pytest.approx(expected), code
 
 
-def test_d2_inspection_pit_hard_surface_volume():
+def test_fixture_text_placeholders_match_calculator():
     items = compute_section_d(build_section_d_site())
-    assert _by_code(items, "D2").quantity == pytest.approx(0.05)
+    for code, expected in EXPECTED_D_TEXT.items():
+        assert _by_code(items, code).quantity == expected, code
 
 
-def test_d3_non_paved_count():
+def test_every_other_item_is_not_required():
     items = compute_section_d(build_section_d_site())
-    assert _by_code(items, "D3").quantity == 3  # TP01 + TP02 + TR01
-
-
-def test_d3_1_non_paved_with_barrier():
-    items = compute_section_d(build_section_d_site())
-    assert _by_code(items, "D3.1").quantity == 1  # TP02
-
-
-def test_d4_non_paved_on_slopes():
-    items = compute_section_d(build_section_d_site())
-    assert _by_code(items, "D4").quantity == 1  # TP02
-
-
-def test_d6_non_paved_tp_band_0_3():
-    items = compute_section_d(build_section_d_site())
-    assert _by_code(items, "D6").quantity == pytest.approx(5.5)  # 2.5 + 3.0
-
-
-def test_d7_non_paved_tp_band_3_4_5():
-    items = compute_section_d(build_section_d_site())
-    assert _by_code(items, "D7").quantity == pytest.approx(1.0)  # TP02: min(1.5, 4.0-3) = 1.0
-
-
-def test_d9_non_paved_trench_vol_0_3():
-    items = compute_section_d(build_section_d_site())
-    assert _by_code(items, "D9").quantity == pytest.approx(7.5)  # 5.0*0.6*2.5
-
-
-def test_d10_non_paved_trench_vol_3_4_5():
-    items = compute_section_d(build_section_d_site())
-    assert _by_code(items, "D10").quantity == 0
-
-
-def test_d12_tp_traffic_management():
-    items = compute_section_d(build_section_d_site())
-    assert _by_code(items, "D12").quantity == 2  # TP02 + TP03
-
-
-def test_d13_trench_traffic_management():
-    items = compute_section_d(build_section_d_site())
-    assert _by_code(items, "D13").quantity == 1  # TR01
-
-
-def test_d14_paved_perimeter():
-    items = compute_section_d(build_section_d_site())
-    # TP03: 2*1.0+2*1.5=5.0, TP04: 2*0.8+2*1.2=4.0, TR02: 2*0.5+2*4.0=9.0
-    assert _by_code(items, "D14").quantity == pytest.approx(18.0)
-
-
-def test_d15_hard_material_volume():
-    items = compute_section_d(build_section_d_site())
-    # TP01: 1.0*2.0*0.3=0.6, TP02: 0, TP03: 1.0*1.5*0.4=0.6, TP04: 0.8*1.2*0.2=0.192
-    # TR02: 4.0*0.5*0.3=0.6, TR01: 0 (no paved dims)
-    assert _by_code(items, "D15").quantity == pytest.approx(1.992)
-
-
-def test_d16_paved_0_1_2_excavation():
-    items = compute_section_d(build_section_d_site())
-    # TP hard material: 0.6+0+0.6+0.192=1.392
-    # TR02 paved 0-1.2: 4.0*0.5*min(2.0,1.2)=2.4
-    assert _by_code(items, "D16").quantity == pytest.approx(3.792)
-
-
-def test_d17_paved_tp_band_1_2_3():
-    items = compute_section_d(build_section_d_site())
-    # TP03: min(1.8, max(0, 2.0-1.2))=0.8, TP04: min(1.8, max(0, 1.5-1.2))=0.3
-    assert _by_code(items, "D17").quantity == pytest.approx(1.1)
-
-
-def test_d18_paved_trench_vol_0_1_2():
-    items = compute_section_d(build_section_d_site())
-    assert _by_code(items, "D18").quantity == pytest.approx(2.4)  # TR02: 4.0*0.5*1.2
-
-
-def test_d19_paved_trench_vol_1_2_3():
-    items = compute_section_d(build_section_d_site())
-    # TR02: 4.0*0.5*min(1.8, max(0, 2.0-1.2))=4.0*0.5*0.8=1.6
-    assert _by_code(items, "D19").quantity == pytest.approx(1.6)
-
-
-def test_d20_standing_time():
-    items = compute_section_d(build_section_d_site())
-    d15 = _by_code(items, "D15").quantity
-    assert _by_code(items, "D20").quantity == pytest.approx(d15 * 0.5)
-
-
-def test_d49_backfill_excluding_national():
-    items = compute_section_d(build_section_d_site())
-    # 4 completed TPs + 2 completed trenches - 1 national TP - 0 national trenches = 5
-    assert _by_code(items, "D49").quantity == 5
-
-
-def test_d51_imported_granular_fill():
-    items = compute_section_d(build_section_d_site())
-    # TP03 RURAL: 1.0*1.5*(2.0-0.1)=2.85
-    # TP04 NATIONAL: (1.5-0.45)*0.8*1.2=1.05*0.96=1.008
-    # TR02 RURAL: 4.0*0.5*(2.0-0.1)=3.8
-    assert _by_code(items, "D51").quantity == pytest.approx(7.658)
-
-
-def test_d53_asphalt_reinstatement():
-    items = compute_section_d(build_section_d_site())
-    # TP03 RURAL: (1.0+0.2)*(1.5+0.2)=1.2*1.7=2.04
-    # TP04 NATIONAL: 0.8*1.2=0.96
-    # TR02 RURAL: (4.0+0.2)*(0.5+0.2)=4.2*0.7=2.94
-    assert _by_code(items, "D53").quantity == pytest.approx(5.94)
-
-
-def test_d55_disposal_is_zero():
-    items = compute_section_d(build_section_d_site())
-    assert _by_code(items, "D55").quantity == 0
+    accounted_for = set(EXPECTED_D_COMPUTED) | set(EXPECTED_D_TEXT)
+    others = [i for i in items if i.code not in accounted_for]
+    assert len(others) == 57 - len(accounted_for)
+    for item in others:
+        assert item.quantity == "Not Required", item.code
 
 
 def test_empty_project_produces_zero_quantities():
-    items = compute_section_d(_empty_project())
-    for code in (
-        "D1",
-        "D2",
-        "D3",
-        "D3.1",
-        "D4",
-        "D6",
-        "D7",
-        "D9",
-        "D10",
-        "D12",
-        "D13",
-        "D14",
-        "D15",
-        "D16",
-        "D17",
-        "D18",
-        "D19",
-        "D20",
-        "D49",
-        "D51",
-        "D53",
-        "D55",
-    ):
+    items = compute_section_d(_project())
+    for code in EXPECTED_D_COMPUTED:
         assert _by_code(items, code).quantity == 0, code
 
 
-def test_placeholder_items():
-    items = compute_section_d(build_section_d_site())
-    assert _by_code(items, "D5").quantity == "Included in D3"
-    assert _by_code(items, "D8").quantity == "Not Required"
-    assert _by_code(items, "D11").quantity == "Not Required"
+# --- Inspection pits ---
 
 
-def test_item_codes_are_unique_within_section_d():
-    codes = _codes(compute_section_d(build_section_d_site()))
-    assert len(codes) == len(set(codes)), f"duplicate codes in Section D: {codes}"
+def test_d1_counts_inspection_pits_with_a_recorded_depth():
+    # 'Inspection pit'!H: =IF(E2>0,1,0) — IP03 has no recorded depth.
+    assert _qty(build_section_d_site(), "D1") == 2
 
 
-def test_section_d_item_count_is_stable():
-    assert len(compute_section_d(_empty_project())) == len(
-        compute_section_d(build_section_d_site())
+def test_d1_sums_every_inspection_pit_not_only_rows_65_to_91():
+    pits = [
+        InspectionPit(
+            inspection_pit_number=f"IP{n:02d}", scheduled_depth_m=1.2, recorded_depth_m=1.2
+        )
+        for n in range(1, 71)
+    ]
+    assert _qty(_project(inspection_pits=pits), "D1") == 70
+
+
+def test_d2_uses_recorded_not_scheduled_dimensions():
+    # 'Inspection pit'!J: =F2*G2*I2 — F and G are the *recorded* length and width.
+    pit = InspectionPit(
+        inspection_pit_number="IP01",
+        scheduled_depth_m=1.2,
+        scheduled_length_m=9.0,
+        scheduled_width_m=9.0,
+        recorded_depth_m=1.2,
+        recorded_length_m=0.5,
+        recorded_width_m=0.4,
+        depth_hard_surface_obstruction_m=0.2,
     )
+    assert _qty(_project(inspection_pits=[pit]), "D2") == pytest.approx(0.5 * 0.4 * 0.2)
+
+
+# --- Paved / non-paved handling ---
+
+
+def test_trench_volumes_are_not_filtered_on_the_paved_column():
+    # TR03 is marked PAVED but its non-paved metres still count towards D9 (Trenches!AD93).
+    project = build_section_d_site()
+    without_tr03 = project.model_copy(
+        update={"trenches": [t for t in project.trenches if t.trench_number != "TR03"]}
+    )
+    assert _qty(project, "D9") - _qty(without_tr03, "D9") == pytest.approx(4.5)
+
+
+def test_d14_filters_trial_pits_on_paved_but_not_trenches():
+    non_paved_pit = TrialPit(
+        trial_pit_number="TP01", schedule_depth_m=2.0, width_m=1.0, length_m=3.0
+    )
+    non_paved_trench = Trench(trench_number="TR01", paved_length_m=4.0, paved_width_m=0.5)
+    project = _project(trial_pits=[non_paved_pit], trenches=[non_paved_trench])
+    # Pit perimeter (8.0) excluded; trench paved perimeter 2×4 + 2×0.5 = 9.0 included.
+    assert _qty(project, "D14") == pytest.approx(9.0)
+
+
+# --- Deliberate deviations and open items ---
+
+
+def test_d16_is_paved_trial_pit_depth_0_to_1_2m():
+    # Deviation from ='Trial Pits'!$V$92+Trenches!$Q93: follows D17's SUMIFS pattern on column Q.
+    assert _qty(build_section_d_site(), "D16") == pytest.approx(2.2)
+
+
+def test_d19_is_paved_trench_volume_1_2_to_3m():
+    # Deviation from =Trenches!$X93 (empty column): uses Trenches!$T93.
+    assert _qty(build_section_d_site(), "D19") == pytest.approx(2.4)
+
+
+def test_d20_is_half_an_hour_per_non_paved_pit_or_trench():
+    # 'Section D'!D34: =D15*0.5 — Calculator row 15 is item D3, not item D15.
+    project = build_section_d_site()
+    assert _qty(project, "D20") == pytest.approx(_qty(project, "D3") * 0.5)
+
+
+def test_d55_is_always_zero():
+    # Open item: the referenced Log Tracker cells are empty.
+    assert _qty(build_section_d_site(), "D55") == 0
+
+
+@pytest.mark.parametrize(
+    ("depth", "band_0_3", "band_3_4_5"),
+    [
+        (2.5, 2.5, 0.0),
+        (3.0, 3.0, 0.0),
+        (4.0, 3.0, 1.0),
+        (4.5, 3.0, 1.5),
+        (5.0, 3.0, 1.5),  # workbook gives 4.5 here; engine caps at the band thickness
+    ],
+)
+def test_non_paved_trial_pit_depth_bands(depth: float, band_0_3: float, band_3_4_5: float):
+    pit = TrialPit(trial_pit_number="TP01", schedule_depth_m=depth, depth_m=depth)
+    project = _project(trial_pits=[pit])
+    assert _qty(project, "D6") == pytest.approx(band_0_3)
+    assert _qty(project, "D7") == pytest.approx(band_3_4_5)
+
+
+@pytest.mark.parametrize(
+    ("depth", "band_0_1_2", "band_1_2_3"),
+    [
+        (1.0, 1.0, 0.0),
+        (1.2, 1.2, 0.0),
+        (2.0, 1.2, 0.8),
+        (3.0, 1.2, 1.8),
+        (3.5, 1.2, 1.8),
+    ],
+)
+def test_paved_trial_pit_depth_bands(depth: float, band_0_1_2: float, band_1_2_3: float):
+    pit = TrialPit(trial_pit_number="TP01", paved=True, schedule_depth_m=depth, depth_m=depth)
+    project = _project(trial_pits=[pit])
+    assert _qty(project, "D16") == pytest.approx(band_0_1_2)
+    assert _qty(project, "D17") == pytest.approx(band_1_2_3)
+
+
+# --- Backfill and reinstatement ---
+
+
+def test_d49_is_holes_dug_minus_national_road_holes():
+    assert _qty(build_section_d_site(), "D49") == 5
+
+
+def test_d51_and_d53_split_rural_and_national_rules():
+    rural = TrialPit(
+        trial_pit_number="TP01", paved=True, road="RURAL", schedule_depth_m=1.5,
+        width_m=0.6, length_m=2.0, depth_m=1.5,
+    )  # fmt: skip
+    national = rural.model_copy(update={"trial_pit_number": "TP02", "road": "NATIONAL"})
+    # Rural: 100 mm surfacing and a 200 mm wider cut-back; national: 450 mm surfacing, no cut-back.
+    assert _qty(_project(trial_pits=[rural]), "D51") == pytest.approx(0.6 * 2.0 * 1.4)
+    assert _qty(_project(trial_pits=[national]), "D51") == pytest.approx(1.05 * 0.6 * 2.0)
+    assert _qty(_project(trial_pits=[rural]), "D53") == pytest.approx(0.8 * 2.2)
+    assert _qty(_project(trial_pits=[national]), "D53") == pytest.approx(0.6 * 2.0)
+
+
+# --- Structure ---
+
+
+def test_section_d_has_57_items_with_unique_codes():
+    codes = [i.code for i in compute_section_d(_project())]
+    assert len(codes) == 57
+    assert len(set(codes)) == 57
+
+
+def test_subheadings_sit_on_first_item_of_each_group():
+    subheadings = {i.code: i.subheading for i in compute_section_d(_project()) if i.subheading}
+    assert subheadings == {
+        "D1": (
+            "Inspection pits Included for each exploratory hole: refer hand digging "
+            "and CAT scan items at exploratory hole locations"
+        ),
+        "D3": "Trial pits and trenches (non paved areas)",
+        "D12": "Trial pits and trenches (paved areas)",
+        "D21": "Observation pits and trenches",
+        "D36": "Daily provision of pitting crew and equipment",
+        "D44": "General",
+        "D49": "Trial pit / slit trench backfill & reinstatement works",
+    }
+
+
+def test_models_have_no_completed_flag():
+    # "Completed" is derived from the recorded depth in the Log Tracker.
+    for model in (TrialPit, Trench, InspectionPit):
+        assert "completed" not in model.model_fields, model.__name__

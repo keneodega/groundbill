@@ -1,42 +1,61 @@
-"""Fixture: a project designed to exercise every Section F branch.
+"""Fixture: a project designed to exercise every Section F formula.
 
-Dynamic probe mix
------------------
-- DP01: depth=4m, completed, no slope
-  → F3 band 0-5: 4, band 5-10: 0, band 10-15: 0
-- DP02: depth=12m, completed, on slope
-  → F3 band 0-5: 5, band 5-10: 5, band 10-15: 2
-- DP03: depth=6m, NOT completed (should be excluded from all counts)
+Expected values are derived by hand from the Calculator formulas (the Log
+Tracker in `reference/excel/` is an empty template, so there are no
+Excel-calculated outputs to copy).
 
-Expected DP totals
-------------------
-- F1 (completed count) = 2
-- F2 (slope count) = 1
-- F3 (band 0-5) = 4 + 5 = 9
-- F4 (band 5-10) = 0 + 5 = 5
-- F5 (band 10-15) = 0 + 2 = 2
-- F6 (standing time) = 2
+Dynamic probes (DPH sheet)
+--------------------------
+Band columns: D = IF(C>5,5,C); E = IF(C>10,5,MAX(0,C-5)); F = IF(C>15,5,MAX(0,C-10)).
 
-CPT mix
--------
-- CPT01: depth=8m, completed, standard (not piezocone), no slope
-  → F11 band 0-10: 8, bands 10-20/20-30/30-40: 0
-- CPT02: depth=22m, completed, standard, on slope
-  → F11 band 0-10: 10, band 10-20: 10, band 20-30: 2, band 30-40: 0
-- CPT03: depth=15m, completed, piezocone, no slope
-  → F11 band 0-10: 10, band 10-20: 5, band 20-30: 0, band 30-40: 0
-- CPT04: depth=5m, NOT completed (should be excluded)
+======  =====  =====  =======  ========  =========
+Probe   Depth  Slope  D (0-5)  E (5-10)  F (10-15)
+======  =====  =====  =======  ========  =========
+DP01     4 m   no        4        0         0
+DP02    12 m   YES       5        5         2
+DP03    17 m   no        5        5         5
+======  =====  =====  =======  ========  =========
+Totals                  14       10         7
 
-Expected CPT totals
--------------------
-- F8 (standard completed) = 2
-- F9 (piezocone completed) = 1
-- F10 (slope count) = 1
-- F11 (band 0-10) = 8 + 10 + 10 = 28
-- F12 (band 10-20) = 0 + 10 + 5 = 15
-- F13 (band 20-30) = 0 + 2 + 0 = 2
-- F14 (band 30-40) = 0
-- F15 (standing time) = 2 + 1 = 3
+DP03 runs to 17 m; the 2 m below 15 m falls outside every band, as in the
+workbook.
+
+- F1 =DPH!H122                   = 3 probes
+- F2 =COUNTIF(DPH!B,"YES")       = 1   (DP02)
+- F3 =DPH!D122                   = 4 + 5 + 5 = 14
+- F4 =DPH!E122                   = 0 + 5 + 5 = 10
+- F5 =DPH!F122                   = 0 + 2 + 5 = 7
+- F6 =D11/2                      = 3 / 2 = 1.5
+
+Cone penetration tests (CPT sheet)
+----------------------------------
+Band columns: F = IF(D>10,10,D); G = IF(D>20,10,MAX(0,D-10));
+H = IF(D>30,10,MAX(0,D-20)); I = IF(D>40,10,MAX(0,D-30)).
+
+=====  =====  =====  =========  ========  =========  =========  =========
+CPT    Depth  Slope  Piezocone  F (0-10)  G (10-20)  H (20-30)  I (30-40)
+=====  =====  =====  =========  ========  =========  =========  =========
+CPT01   8 m   no     no            8         0          0          0
+CPT02  22 m   YES    no           10        10          2          0
+CPT03  15 m   no     YES          10         5          0          0
+CPT04  45 m   YES    no           10        10         10         10
+CPT05   5 m   no     no            5         0          0          0
+=====  =====  =====  =========  ========  =========  =========  =========
+Totals                            43        25         12         10
+
+CPT04 runs to 45 m; the 5 m below 40 m falls outside every band. CPT03 is a
+piezocone test, which no Calculator formula reads, so it is counted like any
+other CPT.
+
+- F8  =CPT!K92                   = 5 CPTs
+- F9  =COUNTIF(CPT!B,"YES")      = 2   (CPT02, CPT04)
+- F10 =CPT!F92                   = 8 + 10 + 10 + 10 + 5 = 43
+- F11 =CPT!G92                   = 0 + 10 + 5 + 10 + 0  = 25
+- F12 =CPT!H92                   = 0 + 2 + 0 + 10 + 0   = 12
+- F13 =CPT!I92                   = 0 + 0 + 0 + 10 + 0   = 10
+- F18 =D19/2                     = 5 / 2 = 2.5
+
+F7, F14-F17 and F19-F22 are "Not Required".
 """
 
 from groundbill.models import (
@@ -47,6 +66,31 @@ from groundbill.models import (
     SiteCategory,
 )
 
+EXPECTED_F = {
+    "F1": 3,
+    "F2": 1,
+    "F3": 14.0,
+    "F4": 10.0,
+    "F5": 7.0,
+    "F6": 1.5,
+    "F7": "Not Required",
+    "F8": 5,
+    "F9": 2,
+    "F10": 43.0,
+    "F11": 25.0,
+    "F12": 12.0,
+    "F13": 10.0,
+    "F14": "Not Required",
+    "F15": "Not Required",
+    "F16": "Not Required",
+    "F17": "Not Required",
+    "F18": 2.5,
+    "F19": "Not Required",
+    "F20": "Not Required",
+    "F21": "Not Required",
+    "F22": "Not Required",
+}
+
 
 def build_section_f_site() -> Project:
     return Project(
@@ -55,47 +99,15 @@ def build_section_f_site() -> Project:
         contract_route=ContractRoute.PRIVATE,
         site_category=SiteCategory.GREEN,
         dynamic_probes=[
-            DynamicProbe(
-                probe_number="DP01",
-                depth_m=4.0,
-                completed=True,
-            ),
-            DynamicProbe(
-                probe_number="DP02",
-                depth_m=12.0,
-                completed=True,
-                slope_over_20pct=True,
-            ),
-            # DP03: not completed — excluded
-            DynamicProbe(
-                probe_number="DP03",
-                depth_m=6.0,
-                completed=False,
-            ),
+            DynamicProbe(probe_number="DP01", depth_m=4.0),
+            DynamicProbe(probe_number="DP02", depth_m=12.0, slope_over_20pct=True),
+            DynamicProbe(probe_number="DP03", depth_m=17.0),
         ],
         cpts=[
-            CPT(
-                cpt_number="CPT01",
-                depth_m=8.0,
-                completed=True,
-            ),
-            CPT(
-                cpt_number="CPT02",
-                depth_m=22.0,
-                completed=True,
-                slope_over_20pct=True,
-            ),
-            CPT(
-                cpt_number="CPT03",
-                depth_m=15.0,
-                completed=True,
-                piezocone=True,
-            ),
-            # CPT04: not completed — excluded
-            CPT(
-                cpt_number="CPT04",
-                depth_m=5.0,
-                completed=False,
-            ),
+            CPT(cpt_number="CPT01", depth_m=8.0),
+            CPT(cpt_number="CPT02", depth_m=22.0, slope_over_20pct=True),
+            CPT(cpt_number="CPT03", depth_m=15.0, piezocone=True),
+            CPT(cpt_number="CPT04", depth_m=45.0, slope_over_20pct=True),
+            CPT(cpt_number="CPT05", depth_m=5.0),
         ],
     )

@@ -1,14 +1,16 @@
-"""Tests for the Section L calculation engine."""
+"""Tests for the Section L calculation engine.
+
+Expected quantities come from ``tests/fixtures/section_l_site.py``, where the
+arithmetic is set out against the Calculator formulas. Row-for-row agreement
+of codes, descriptions and units with the reference workbook is checked in
+``test_workbook_fidelity.py``.
+"""
 
 import pytest
 
 from groundbill.engine import BoqItem, compute_section_l
-from groundbill.models import ContractRoute, Project
-from tests.fixtures.section_l_site import build_section_l_site
-
-
-def _codes(items: list[BoqItem]) -> list[str]:
-    return [i.code for i in items]
+from groundbill.models import ContractRoute, InSituTest, Project, TrialPit
+from tests.fixtures.section_l_site import EXPECTED_L, build_section_l_site
 
 
 def _by_code(items: list[BoqItem], code: str) -> BoqItem:
@@ -25,21 +27,41 @@ def _empty_project() -> Project:
     )
 
 
-def test_l1_chemical_testing():
+def test_codes_are_l1_through_l6_in_order():
+    codes = [i.code for i in compute_section_l(_empty_project())]
+    assert codes == ["L.1", "L.2", "L.3", "L.4", "L.5", "L.6"]
+
+
+def test_fixture_quantities_match_hand_derived_values():
     items = compute_section_l(build_section_l_site())
-    # ev_count = 5, L.1 = 5 / 5 = 1.0
-    assert _by_code(items, "L.1").quantity == pytest.approx(1.0)
+    actual = {i.code: i.quantity for i in items}
+    assert actual == pytest.approx(EXPECTED_L)
 
 
-def test_l5_groundwater_analysis():
+def test_l1_is_environmental_sample_count_divided_by_five():
+    # 'Section L'!D11: ='Section E'!D25/5 — 6 holes with "EV" → 6 / 5 = 1.2
     items = compute_section_l(build_section_l_site())
-    # L.5 = L.1 = 1.0
-    assert _by_code(items, "L.5").quantity == pytest.approx(1.0)
+    assert _by_code(items, "L.1").quantity == pytest.approx(1.2)
 
 
-def test_l1_equals_l5():
+def test_l5_follows_e16_which_equals_e12():
+    # 'Section L'!D15: ='Section E'!D29/5, and 'Section E'!D29 is =D25
     items = compute_section_l(build_section_l_site())
-    assert _by_code(items, "L.1").quantity == _by_code(items, "L.5").quantity
+    assert _by_code(items, "L.5").quantity == _by_code(items, "L.1").quantity
+
+
+def test_result_is_not_rounded():
+    # One hole with "EV" → 1 / 5 = 0.2; the workbook applies no ROUNDUP.
+    project = _empty_project().model_copy(
+        update={
+            "trial_pits": [
+                TrialPit(
+                    trial_pit_number="TP01", schedule_depth_m=3.0, in_situ_tests={InSituTest.EV}
+                )
+            ]
+        }
+    )
+    assert _by_code(compute_section_l(project), "L.1").quantity == pytest.approx(0.2)
 
 
 def test_empty_project_produces_zero_quantities():
@@ -48,23 +70,20 @@ def test_empty_project_produces_zero_quantities():
         assert _by_code(items, code).quantity == 0, code
 
 
-def test_static_items():
+def test_static_items_are_not_required():
     items = compute_section_l(build_section_l_site())
-    for code in ("L.2", "L.3", "L.4", "L.6", "L.7"):
+    for code in ("L.2", "L.3", "L.4", "L.6"):
         assert _by_code(items, code).quantity == "Not Required", code
 
 
-def test_item_codes_are_unique_within_section_l():
-    codes = _codes(compute_section_l(build_section_l_site()))
-    assert len(codes) == len(set(codes)), f"duplicate codes in Section L: {codes}"
+def test_descriptions_are_tests_suite_e_to_j():
+    descriptions = [i.description for i in compute_section_l(_empty_project())]
+    assert descriptions == [f"Tests Suite {s}" for s in "EFGHIJ"]
 
 
-def test_section_l_item_count_is_stable():
-    assert len(compute_section_l(_empty_project())) == len(
-        compute_section_l(build_section_l_site())
-    )
-
-
-def test_section_l_has_7_items():
+def test_subheading_sits_on_first_item():
     items = compute_section_l(_empty_project())
-    assert len(items) == 7
+    assert items[0].subheading == (
+        "Contamination testing of soil, groundwater, gas and fill material)"
+    )
+    assert all(i.subheading is None for i in items[1:])

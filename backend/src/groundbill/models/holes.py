@@ -8,7 +8,7 @@ engine rather than stored on the model.
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from .enums import DrillingMethod, InSituTest, PiezometerType, PSEVTest
+from .enums import DrillingMethod, InSituTest, PSEVTest
 
 
 class _HoleBase(BaseModel):
@@ -31,7 +31,25 @@ class Borehole(_HoleBase):
 
     Columns N-Q, W-Z, AG-AJ, AQ-AT, BA-BD (the 0-10 / 10-20 / 20-30 / 30-40
     depth bands per drilling method) are derived by the engine and therefore
-    not present here.
+    not present here. The same goes for the two formula columns I
+    ('CP Completed', ``=IF(K2>0, 1, 0)``) and BP ('PIE/SP Complete',
+    ``=IF(OR(BI2="YES",BL2="YES"), 1, 0)``).
+
+    Yes/no columns
+    --------------
+    Three instrumentation columns hold "YES" (or are left blank / "NO") and
+    are stored as flags, because that is how the Calculator formulas read
+    them:
+
+    - BH 'ROAD' — tested for "YES" (flush cover, obstruction break-out) and
+      "NO" (raised cover). ``on_road=False`` stands for both "NO" and a blank
+      cell. Note this differs from the trial pit and trench 'Road' columns,
+      which hold "RURAL" or "NATIONAL".
+    - BI 'Pizezometer' (sic) — tested for "YES".
+    - BL 'Standpipe (mm)' — despite the header, tested for "YES"; no formula
+      reads a diameter.
+
+    A borehole may have both a piezometer and a standpipe.
     """
 
     hole_number: str = Field(description="Col A — 'Hole Number'")
@@ -44,23 +62,20 @@ class Borehole(_HoleBase):
     total_schedule_depth_m: float = Field(gt=0, description="Col F")
     tests: set[PSEVTest] = Field(default_factory=set, description="Col G — 'Tests P/S/EV'")
     total_depth_m: float | None = Field(default=None, description="Col H — actual depth achieved")
-    cp_completed: bool = Field(default=False, description="Col I")
-    road: str | None = Field(default=None, description="Col BH — 'ROAD'")
-    piezometer_type: PiezometerType = Field(
-        default=PiezometerType.NONE, description="Col BI — 'Piezometer'"
-    )
+    on_road: bool = Field(default=False, description="Col BH — 'ROAD' (YES / NO)")
+    piezometer: bool = Field(default=False, description="Col BI — 'Pizezometer' (YES)")
     piezometer_plain_depth_m: float | None = Field(default=None, description="Col BJ")
-    standpipe_diameter_mm: int | None = Field(default=None, description="Col BL")
+    standpipe: bool = Field(default=False, description="Col BL — 'Standpipe (mm)' (YES)")
     standpipe_plain_depth_m: float | None = Field(default=None, description="Col BM")
     standpipe_slotted_depth_m: float | None = Field(default=None, description="Col BN")
-    installation_complete: bool = Field(default=False, description="Col BP — 'PIE/SP Complete'")
 
 
 class TrialPit(_HoleBase):
     """Source sheet: 'Trial Pits'.
 
-    Derived columns (O-R depth bands; T-Y perimeter / area / volumes;
-    AA-AB asphalt areas) are computed by the engine.
+    Derived columns (I 'Completed', ``=IF(M2>0,1,0)``; O-R depth bands;
+    T-Y perimeter / area / volumes; AA-AB asphalt areas) are computed by the
+    engine.
     """
 
     trial_pit_number: str = Field(description="Col A")
@@ -70,7 +85,6 @@ class TrialPit(_HoleBase):
     traffic_management: bool = Field(default=False, description="Col E")
     road: str | None = Field(default=None, description="Col F")
     schedule_depth_m: float = Field(gt=0, description="Col H")
-    completed: bool = Field(default=False, description="Col I")
     in_situ_tests: set[InSituTest] = Field(
         default_factory=set, description="Col J — 'Insitu Tests'"
     )
@@ -85,7 +99,8 @@ class Trench(_HoleBase):
 
     A single trench can cross paved and non-paved ground, so three dimension
     sets are captured: OVERALL (cols H-J), PAVED (cols M-P), NON-PAVED
-    (cols Y-AA). Derived volumes and areas are computed by the engine.
+    (cols Y-AA). Derived columns (K 'completed', ``=IF(J3>0,1,0)``; volumes
+    and areas) are computed by the engine.
     """
 
     trench_number: str = Field(description="Col A — 'Trench'")
@@ -98,7 +113,6 @@ class Trench(_HoleBase):
     overall_length_m: float | None = Field(default=None, description="Col H")
     overall_width_m: float | None = Field(default=None, description="Col I")
     overall_total_depth_m: float | None = Field(default=None, description="Col J")
-    completed: bool = Field(default=False, description="Col K")
     paved_length_m: float | None = Field(default=None, description="Col M")
     paved_width_m: float | None = Field(default=None, description="Col N")
     paved_depth_m: float | None = Field(default=None, description="Col O")
@@ -109,7 +123,11 @@ class Trench(_HoleBase):
 
 
 class InspectionPit(_HoleBase):
-    """Source sheet: 'Inspection pit' (Excel header 'Inspectoin Pit' is a typo)."""
+    """Source sheet: 'Inspection pit' (Excel header 'Inspectoin Pit' is a typo).
+
+    Derived columns (H 'Completed', ``=IF(E2>0,1,0)``; J 'Volume of hard
+    Surface', ``=F2*G2*I2``) are computed by the engine.
+    """
 
     inspection_pit_number: str = Field(description="Col A")
     scheduled_depth_m: float = Field(gt=0, description="Col B")
@@ -118,7 +136,6 @@ class InspectionPit(_HoleBase):
     recorded_depth_m: float | None = Field(default=None, description="Col E")
     recorded_length_m: float | None = Field(default=None, description="Col F")
     recorded_width_m: float | None = Field(default=None, description="Col G")
-    completed: bool = Field(default=False, description="Col H")
     depth_hard_surface_obstruction_m: float | None = Field(default=None, description="Col I")
     in_situ_tests: set[InSituTest] = Field(
         default_factory=set, description="Col K — 'Insitu Tests'"
@@ -126,27 +143,36 @@ class InspectionPit(_HoleBase):
 
 
 class DynamicSample(_HoleBase):
-    """Source sheet: 'Dynamic Sampling'."""
+    """Source sheet: 'Dynamic Sampling'.
+
+    Derived columns (D-F depth bands; H 'Completed', ``=IF(C2>0,1,0)``;
+    O 'PIE/SP Complete', ``=IF(OR(G2="YES",K2="YES"), 1, 0)``) are computed by
+    the engine.
+
+    As on the Boreholes sheet, column I 'ROAD' and column K 'Standpipe (mm)'
+    are tested for "YES" / "NO" by the Calculator and are stored as flags.
+    """
 
     sample_number: str = Field(description="Col A — 'Sample'")
     slope_over_20pct: bool = Field(default=False, description="Col B")
     depth_m: float = Field(gt=0, description="Col C")
-    completed: bool = Field(default=False, description="Col H")
-    road: str | None = Field(default=None, description="Col I")
+    on_road: bool = Field(default=False, description="Col I — 'ROAD' (YES / NO)")
     tests: set[PSEVTest] = Field(default_factory=set, description="Col J — 'Tests P/S/EV'")
-    standpipe_diameter_mm: int | None = Field(default=None, description="Col K")
+    standpipe: bool = Field(default=False, description="Col K — 'Standpipe (mm)' (YES)")
     plain_depth_m: float | None = Field(default=None, description="Col L")
     slotted_depth_m: float | None = Field(default=None, description="Col M")
-    installation_complete: bool = Field(default=False, description="Col O — 'PIE/SP Complete'")
 
 
 class Soakaway(_HoleBase):
-    """Source sheet: 'Soakaway (BRE)'."""
+    """Source sheet: 'Soakaway (BRE)'.
+
+    Column E ('Completed') is a formula, ``=IF(I2>0, 1, 0)``, so it is derived
+    from the recorded depth rather than stored here.
+    """
 
     soakaway_id: str = Field(description="Col A — 'ID REF'")
     road: str | None = Field(default=None, description="Col B")
     schedule_depth_m: float = Field(gt=0, description="Col D")
-    completed: bool = Field(default=False, description="Col E")
     in_situ_tests: set[InSituTest] = Field(
         default_factory=set, description="Col F — 'Insitu Tests'"
     )
@@ -157,19 +183,25 @@ class Soakaway(_HoleBase):
 
 
 class DynamicProbe(_HoleBase):
-    """Source sheet: 'DPH' (Dynamic Probe Heavy)."""
+    """Source sheet: 'DPH' (Dynamic Probe Heavy).
+
+    Column H ('Completed') is a formula, ``=IF(C2>0,1,0)``, so it is derived
+    by the engine from the depth rather than stored here.
+    """
 
     probe_number: str = Field(description="Col A — 'DPH'")
     slope_over_20pct: bool = Field(default=False, description="Col B")
     depth_m: float = Field(gt=0, description="Col C")
-    completed: bool = Field(default=False, description="Col H")
 
 
 class CPT(_HoleBase):
-    """Source sheet: 'CPT' (Cone Penetration Test)."""
+    """Source sheet: 'CPT' (Cone Penetration Test).
+
+    Column K ('Completed') is a formula, ``=IF(D2>0,1,0)``, so it is derived
+    by the engine from the depth rather than stored here.
+    """
 
     cpt_number: str = Field(description="Col A — 'CPT'")
     slope_over_20pct: bool = Field(default=False, description="Col B")
     piezocone: bool = Field(default=False, description="Col C")
     depth_m: float = Field(gt=0, description="Col D")
-    completed: bool = Field(default=False, description="Col K")

@@ -1,40 +1,45 @@
-"""Fixture: a project designed to exercise every Section E branch.
+"""Fixture: a project designed to exercise every Section E formula.
 
-Hole mix for sampling computations
------------------------------------
-- BH01: 12 m CP phase → total_cp_depth = 12
-- BH02: 8 m CP + 5 m rotary → CP depth = 8, tests={EV}
-- TP01: depth=3.0m, in_situ_tests={EV}
-- TP02: depth=2.0m, in_situ_tests={}
-- TR01: in_situ_tests={EV}  (Trenches!N93 is None → contributes 0 to E2)
-- IP01: recorded_depth=1.5m, in_situ_tests={EV}
-- IP02: recorded_depth=None (contributes 0)
-- DS01: depth=6.0m, tests={EV}
-- DS02: depth=4.0m, tests={}
+Expected values are derived by hand from the Calculator formulas (the Log
+Tracker in `reference/excel/` is an empty template, so there are no
+Excel-calculated outputs to copy).
 
-Expected totals
----------------
-- total_cp_depth = 12 + 8 = 20
-- tp_depth_sum = 3.0 + 2.0 = 5.0
-- trench_tub_count = 0 (Trenches!N93 = None)
-- ip_depth_sum = 1.5 + 0 = 1.5
-- ds_depth_sum = 6.0 + 4.0 = 10.0
+Hole mix
+--------
+- BH01  12 m cable percussion                      tests: none
+- BH02  8 m cable percussion + 5 m rotary coring   tests: EV
+- TP01  recorded depth 3.0 m                       tests: EV
+- TP02  recorded depth 2.0 m                       tests: none
+- TR01  5.0 m x 0.6 m x 1.5 m deep (paved)         tests: EV
+- IP01  recorded depth 1.5 m                       tests: EV
+- IP02  no recorded depth                          tests: none
+- DS01  depth 6.0 m                                tests: EV
+- DS02  depth 4.0 m                                tests: none
 
-- E2  = 20 + 5 + 0 + 1.5 + 10 = 36.5
-- E3  = 36.5
-- E4  = 36.5 / 10 = 3.65
-- E5  = 20 / 5 = 4.0
-- E6  = 4.0
-- E8.1 = 20 / 10 = 2.0
-- E8.2 = 2.0
-- E12 = 4  (BH02 + TP01 + TR01 + IP01 + DS01 = 5 — wait, let me recount)
-         BH02: PSEVTest.EV → 1
-         TP01: InSituTest.EV → 1
-         TR01: InSituTest.EV → 1
-         IP01: InSituTest.EV → 1
-         DS01: PSEVTest.EV → 1
-         Total = 5
-- E16 = 5
+Log Tracker totals
+------------------
+- Boreholes!K92 (CP drilling total depth)   = 12 + 8        = 20
+  (BH02's 5 m of rotary drilling is not cable percussion, so not counted)
+- 'Trial Pits'!M92 (depth)                  = 3.0 + 2.0     = 5.0
+- Trenches!N93                              = 0
+  (empty cell in the Log Tracker — open item; TR01 has real dimensions to
+  show that trenches contribute nothing)
+- 'Inspection pit'!E92 (recorded depth)     = 1.5 + blank   = 1.5
+- 'Dynamic Sampling'!C92 (depth)            = 6.0 + 4.0     = 10.0
+
+Expected Section E quantities
+-----------------------------
+- E2   =SUM(K92, M92, N93, E92) + C92 = 20 + 5.0 + 0 + 1.5 + 10.0 = 36.5
+- E3   =D12                           = 36.5
+- E4   =D12/10        = 36.5 / 10     = 3.65
+- E5   =K92/5         = 20 / 5        = 4.0
+- E6   =D15                           = 4.0
+- E8.1 =K92/10        = 20 / 10       = 2.0
+- E8.2 =K92/10        = 20 / 10       = 2.0
+- E9   blank cell                     = None
+- E12  holes with "EV": TP01, IP01, TR01, BH02, DS01 = 5
+- E16  =D25                           = 5
+- E1, E7, E8.3, E10, E11, E13, E14, E15, E17 = "Not Required"
 """
 
 from groundbill.models import (
@@ -51,6 +56,28 @@ from groundbill.models import (
     Trench,
     TrialPit,
 )
+
+EXPECTED_E = {
+    "E1": "Not Required",
+    "E2": 36.5,
+    "E3": 36.5,
+    "E4": 3.65,
+    "E5": 4.0,
+    "E6": 4.0,
+    "E7": "Not Required",
+    "E8.1": 2.0,
+    "E8.2": 2.0,
+    "E8.3": "Not Required",
+    "E9": None,
+    "E10": "Not Required",
+    "E11": "Not Required",
+    "E12": 5,
+    "E13": "Not Required",
+    "E14": "Not Required",
+    "E15": "Not Required",
+    "E16": 5,
+    "E17": "Not Required",
+}
 
 
 def build_section_e_site() -> Project:
@@ -93,10 +120,17 @@ def build_section_e_site() -> Project:
             ),
         ],
         trenches=[
-            # TR01: with EV
+            # TR01: with EV; real dimensions, which E2 nevertheless ignores (Trenches!N93 is empty)
             Trench(
                 trench_number="TR01",
+                paved=True,
                 in_situ_tests={InSituTest.EV},
+                overall_length_m=5.0,
+                overall_width_m=0.6,
+                overall_total_depth_m=1.5,
+                paved_length_m=5.0,
+                paved_width_m=0.6,
+                paved_depth_m=1.5,
             ),
         ],
         inspection_pits=[

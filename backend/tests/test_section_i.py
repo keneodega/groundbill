@@ -1,14 +1,23 @@
-"""Tests for the Section I calculation engine."""
+"""Tests for the Section I calculation engine.
+
+Expected quantities come from ``tests/fixtures/section_i_site.py``, where the
+arithmetic is set out against the Calculator formulas. Row-for-row agreement
+of codes, descriptions and units with the reference workbook is checked in
+``test_workbook_fidelity.py``.
+"""
 
 import pytest
 
 from groundbill.engine import BoqItem, compute_section_i
-from groundbill.models import ContractRoute, Project
-from tests.fixtures.section_i_site import build_section_i_site
-
-
-def _codes(items: list[BoqItem]) -> list[str]:
-    return [i.code for i in items]
+from groundbill.models import (
+    Borehole,
+    ContractRoute,
+    DrillingMethod,
+    DrillingPhase,
+    DynamicSample,
+    Project,
+)
+from tests.fixtures.section_i_site import EXPECTED_I_COMPUTED, build_section_i_site
 
 
 def _by_code(items: list[BoqItem], code: str) -> BoqItem:
@@ -17,168 +26,163 @@ def _by_code(items: list[BoqItem], code: str) -> BoqItem:
     return matches[0]
 
 
-def _empty_project() -> Project:
+def _project(**holes) -> Project:
     return Project(
-        name="Empty",
-        site_address="Nowhere",
-        contract_route=ContractRoute.PRIVATE,
+        name="Test", site_address="Nowhere", contract_route=ContractRoute.PRIVATE, **holes
     )
 
 
-# --- Borehole instrumentation tests ---
+def _qty(project: Project, code: str):
+    return _by_code(compute_section_i(project), code).quantity
 
 
-def test_i1_piezometer_count():
+def _borehole(**kwargs) -> Borehole:
+    return Borehole(
+        hole_number="BH01",
+        phases=[DrillingPhase(method=DrillingMethod.CABLE_PERCUSSION, depth_m=10.0)],
+        total_schedule_depth_m=10.0,
+        **kwargs,
+    )
+
+
+def _sample(**kwargs) -> DynamicSample:
+    return DynamicSample(sample_number="DS01", depth_m=4.0, **kwargs)
+
+
+def test_fixture_computed_quantities_match_hand_derived_values():
     items = compute_section_i(build_section_i_site())
-    assert _by_code(items, "I1").quantity == 1
+    for code, expected in EXPECTED_I_COMPUTED.items():
+        assert _by_code(items, code).quantity == pytest.approx(expected), code
 
 
-def test_i2_standpipe_count():
+def test_every_other_item_is_not_required():
     items = compute_section_i(build_section_i_site())
-    assert _by_code(items, "I2").quantity == 2
-
-
-def test_i3_piezometer_plain_depth():
-    items = compute_section_i(build_section_i_site())
-    assert _by_code(items, "I3").quantity == pytest.approx(10.0)
-
-
-def test_i4_standpipe_plain_depth():
-    items = compute_section_i(build_section_i_site())
-    assert _by_code(items, "I4").quantity == pytest.approx(13.0)
-
-
-def test_i5_standpipe_slotted_depth():
-    items = compute_section_i(build_section_i_site())
-    assert _by_code(items, "I5").quantity == pytest.approx(5.0)
-
-
-def test_i6_standpipe_50mm_count():
-    items = compute_section_i(build_section_i_site())
-    assert _by_code(items, "I6").quantity == 1
-
-
-def test_i7_standpipe_19mm_count():
-    items = compute_section_i(build_section_i_site())
-    assert _by_code(items, "I7").quantity == 1
-
-
-def test_i8_end_caps():
-    items = compute_section_i(build_section_i_site())
-    assert _by_code(items, "I8").quantity == 3  # I1 + I2
-
-
-def test_i9_flush_cover_rural():
-    items = compute_section_i(build_section_i_site())
-    assert _by_code(items, "I9").quantity == 1  # BH02
-
-
-def test_i10_raised_cover_non_road():
-    items = compute_section_i(build_section_i_site())
-    assert _by_code(items, "I10").quantity == 2  # BH01 + BH03
-
-
-# --- Dynamic sample instrumentation tests ---
-
-
-def test_i11_ds_standpipe_count():
-    items = compute_section_i(build_section_i_site())
-    assert _by_code(items, "I11").quantity == 2
-
-
-def test_i12_ds_plain_depth():
-    items = compute_section_i(build_section_i_site())
-    assert _by_code(items, "I12").quantity == pytest.approx(7.0)
-
-
-def test_i13_ds_slotted_depth():
-    items = compute_section_i(build_section_i_site())
-    assert _by_code(items, "I13").quantity == pytest.approx(3.0)
-
-
-def test_i14_ds_50mm_count():
-    items = compute_section_i(build_section_i_site())
-    assert _by_code(items, "I14").quantity == 1
-
-
-def test_i15_ds_19mm_count():
-    items = compute_section_i(build_section_i_site())
-    assert _by_code(items, "I15").quantity == 1
-
-
-def test_i16_ds_end_caps():
-    items = compute_section_i(build_section_i_site())
-    assert _by_code(items, "I16").quantity == 2  # = I11
-
-
-def test_i17_ds_flush_cover_rural():
-    items = compute_section_i(build_section_i_site())
-    assert _by_code(items, "I17").quantity == 1
-
-
-def test_i18_ds_raised_cover_non_road():
-    items = compute_section_i(build_section_i_site())
-    assert _by_code(items, "I18").quantity == 1
-
-
-# --- Structural tests ---
+    others = [i for i in items if i.code not in EXPECTED_I_COMPUTED]
+    assert len(others) == 35 - len(EXPECTED_I_COMPUTED)
+    for item in others:
+        assert item.quantity == "Not Required", item.code
 
 
 def test_empty_project_produces_zero_quantities():
-    items = compute_section_i(_empty_project())
-    for code in (
-        "I1",
-        "I2",
-        "I3",
-        "I4",
-        "I5",
-        "I6",
-        "I7",
-        "I8",
-        "I9",
-        "I10",
-        "I11",
-        "I12",
-        "I13",
-        "I14",
-        "I15",
-        "I16",
-        "I17",
-        "I18",
-    ):
+    items = compute_section_i(_project())
+    for code in EXPECTED_I_COMPUTED:
         assert _by_code(items, code).quantity == 0, code
 
 
-def test_static_items():
-    items = compute_section_i(build_section_i_site())
-    for code in (
-        "I19",
-        "I20",
-        "I21",
-        "I22",
-        "I23",
-        "I24",
-        "I25",
-        "I26",
-        "I27",
-        "I28",
-        "I29",
-        "I30",
-        "I31",
-        "I32",
-        "I33",
-        "I34",
-        "I35",
-    ):
-        assert _by_code(items, code).quantity == "Not Required", code
+# --- Pipe lengths ---
 
 
-def test_item_codes_are_unique_within_section_i():
-    codes = _codes(compute_section_i(build_section_i_site()))
-    assert len(codes) == len(set(codes)), f"duplicate codes in Section I: {codes}"
-
-
-def test_section_i_item_count_is_stable():
-    assert len(compute_section_i(_empty_project())) == len(
-        compute_section_i(build_section_i_site())
+def test_i1_backfill_is_the_sum_of_plain_pipe_depths():
+    # 'Section I'!D11: =Boreholes!$BJ92+Boreholes!$BM92+'Dynamic Sampling'!$L$92
+    project = _project(
+        boreholes=[
+            _borehole(
+                piezometer=True,
+                piezometer_plain_depth_m=8.0,
+                standpipe=True,
+                standpipe_plain_depth_m=3.0,
+                standpipe_slotted_depth_m=6.0,
+            )
+        ],
+        dynamic_samples=[_sample(standpipe=True, plain_depth_m=1.0, slotted_depth_m=3.0)],
     )
+    assert _qty(project, "I1") == pytest.approx(8.0 + 3.0 + 1.0)  # slotted lengths excluded
+    assert _qty(project, "I4") == pytest.approx(8.0)
+    assert _qty(project, "I6") == pytest.approx(6.0 + 3.0)
+    assert _qty(project, "I8") == pytest.approx(3.0 + 1.0)
+
+
+def test_depth_totals_are_not_filtered_on_the_yes_flags():
+    # Open item: the totals row is read as is, so a depth without its flag still counts.
+    project = _project(boreholes=[_borehole(piezometer_plain_depth_m=4.0)])
+    assert _qty(project, "I4") == pytest.approx(4.0)
+    assert _qty(project, "I2") == 0
+
+
+# --- Counts ---
+
+
+def test_i2_counts_dynamic_sampling_standpipes_as_piezometer_tips():
+    # Open item, translated literally: the second term reads 'Dynamic Sampling'!K.
+    project = _project(
+        boreholes=[_borehole(piezometer=True), _borehole(standpipe=True)],
+        dynamic_samples=[_sample(standpipe=True)],
+    )
+    assert _qty(project, "I2") == 2  # one borehole piezometer + one DS standpipe
+    assert _qty(project, "I3") == 2
+
+
+def test_i5_counts_borehole_piezometers_only():
+    project = _project(
+        boreholes=[_borehole(piezometer=True)], dynamic_samples=[_sample(standpipe=True)]
+    )
+    assert _qty(project, "I5") == 1
+
+
+def test_i9_counts_standpipe_plain_depths_and_complete_dynamic_samples():
+    # COUNTIF(Boreholes!BM,">0") reads the plain depth, not the BL flag.
+    project = _project(
+        boreholes=[
+            _borehole(standpipe=True),  # flag but no plain depth → not counted
+            _borehole(standpipe_plain_depth_m=2.0),  # depth but no flag → counted
+        ],
+        dynamic_samples=[_sample(standpipe=True), _sample()],
+    )
+    assert _qty(project, "I9") == 2
+
+
+def test_i14_is_two_end_caps_per_installation():
+    project = _project(
+        boreholes=[_borehole(piezometer=True, standpipe=True)],  # both on one hole → 2
+        dynamic_samples=[_sample(standpipe=True)],
+    )
+    assert _qty(project, "I14") == (1 + 1 + 1) * 2
+
+
+# --- Covers ---
+
+
+def test_on_road_installation_gets_flush_cover():
+    project = _project(boreholes=[_borehole(on_road=True, standpipe=True)])
+    assert _qty(project, "I16") == 1
+    assert _qty(project, "I17") == 0
+
+
+def test_off_road_installation_gets_raised_cover_fencing_and_marker_posts():
+    project = _project(dynamic_samples=[_sample(on_road=False, standpipe=True)])
+    assert _qty(project, "I16") == 0
+    for code in ("I17", "I19", "I20"):
+        assert _qty(project, code) == 1, code
+
+
+def test_holes_without_an_installation_get_no_cover():
+    project = _project(boreholes=[_borehole(on_road=True)], dynamic_samples=[_sample()])
+    assert _qty(project, "I16") == 0
+    assert _qty(project, "I17") == 0
+
+
+# --- Structure ---
+
+
+def test_section_i_has_35_items_with_unique_codes():
+    codes = [i.code for i in compute_section_i(_project())]
+    assert codes == [f"I{n}" for n in range(1, 36)]
+
+
+def test_subheadings_sit_on_first_item_of_each_group():
+    subheadings = {i.code: i.subheading for i in compute_section_i(_project()) if i.subheading}
+    assert subheadings == {
+        "I1": "Standpipes and piezometers",
+        "I21": "Standpipe and piezometer development / purging",
+        "I27": "Inclinometer",
+        "I32": "Slip Indicator",
+    }
+
+
+def test_models_use_yes_no_flags_for_instrumentation():
+    for field in ("on_road", "piezometer", "standpipe"):
+        assert Borehole.model_fields[field].annotation is bool, field
+    for field in ("on_road", "standpipe"):
+        assert DynamicSample.model_fields[field].annotation is bool, field
+    for removed in ("road", "standpipe_diameter_mm", "installation_complete", "piezometer_type"):
+        assert removed not in Borehole.model_fields, removed

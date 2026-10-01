@@ -36,13 +36,13 @@ B17/B18/B19 come from the Dynamic Sampling sheet columns D/E/F:
 - ``E = IF(C>10, 5, MAX(0, C-5))``       — 5-10 m band
 - ``F = IF(C>10, C-10, MAX(0, C-10))``   — >10 m band
 
-Open items for review (by Havilah)
-----------------------------------
+ROAD column (resolved 2026-10-01)
+--------------------------------
 - B3.1 ("Break out obstructions...") is driven by
-  ``COUNTIF(Boreholes!$BH$2:$BH91, "YES") * 0.125`` in the Calculator. The
-  Log Tracker's column BH is the free-text 'ROAD' column, so this formula
-  will almost always evaluate to 0. Translated literally pending confirmation
-  of the intended source column.
+  ``COUNTIF(Boreholes!$BH$2:$BH91, "YES") * 0.125`` in the Calculator. Column
+  BH is 'ROAD'; Sections C and I test the same column for "YES" / "NO", so it
+  is a yes/no flag, stored on the model as ``Borehole.on_road``. The formula
+  counts every borehole on a road, whatever its drilling type.
 """
 
 from groundbill.models import Borehole, DrillingMethod, DynamicSample, Project
@@ -76,8 +76,8 @@ def compute_section_b(project: Project) -> list[BoqItem]:
 
     total_bh = b1_1_1 + b1_1_2 + b1_2_1 + b1_2_2
 
-    # Column BH is free-text 'ROAD'; see module docstring 'Open items for review'.
-    b3_1 = sum(1 for b in project.boreholes if b.road == "YES") * 0.125
+    # 'Section B'!D19: =(COUNTIF([1]Boreholes!$BH$2:$BH91,"YES"))*0.125
+    b3_1 = sum(1 for b in project.boreholes if b.on_road) * 0.125
 
     cp_bands = [0.0, 0.0, 0.0, 0.0]
     for bh in project.boreholes:

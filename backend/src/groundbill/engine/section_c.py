@@ -67,12 +67,12 @@ computes them. A method's START is the total depth of the phases above it.
 
 Open items for review (by Havilah)
 ----------------------------------
-- **C18 ROAD column (translated literally).** Column BH of the Boreholes
+- **C18 ROAD column (resolved 2026-10-01).** Column BH of the Boreholes
   sheet is headed 'ROAD'. The formula counts cells equal to "YES" across *all*
   boreholes (including cable-percussion-only holes) and multiplies by 0.125
-  (the Calculator's note: "(No. of BHs on road) x (0.5x0.5x0.5)"). The model
-  stores ``road`` as free text, so this only counts boreholes whose ``road``
-  is exactly "YES". Same formula and same open item as B3.1.
+  (the Calculator's note: "(No. of BHs on road) x (0.5x0.5x0.5)"). Sections B
+  and I test the same column for "YES" / "NO", so it is a yes/no flag, stored
+  on the model as ``Borehole.on_road``. Same formula as B3.1.
 - **C15.1.1 / C15.1.2 range (deliberate deviation, agreed 2026-10-01).** The
   two CP/RC formulas stop at row 38 (``$B$2:$B38``) while every other formula
   runs to row 91. Treated as a slip: all CP/RC boreholes are counted.
@@ -132,8 +132,7 @@ def compute_section_c(project: Project) -> list[BoqItem]:
         1 for b in cp_rc if b.slope_over_20pct
     )
     # 'Section C'!D36: =(COUNTIF([1]Boreholes!$BH$2:$BH91,"YES"))*0.125
-    # Open item: column BH is 'ROAD'; translated literally (see module docstring).
-    c18 = sum(1 for b in boreholes if b.road == "YES") * 0.125
+    c18 = sum(1 for b in boreholes if b.on_road) * 0.125
     # 'Section C'!D37: =D32+D31+D30+D29
     c19 = c15_2_2 + c15_2_1 + c15_1_2 + c15_1_1
 

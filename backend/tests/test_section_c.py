@@ -102,9 +102,8 @@ def test_c18_counts_every_borehole_with_road_yes_including_cp_only():
     assert _by_code(items, "C18").quantity == pytest.approx(0.25)
 
 
-def test_c18_ignores_road_values_other_than_yes():
-    # Open item: column BH is free text; only the literal "YES" matches.
-    boreholes = [_borehole("BH01", (_CORE_HARD, 10.0), road="RURAL")]
+def test_c18_is_zero_when_no_borehole_is_on_a_road():
+    boreholes = [_borehole("BH01", (_CORE_HARD, 10.0), on_road=False)]
     assert _by_code(compute_section_c(_project(boreholes)), "C18").quantity == 0
 
 

@@ -114,7 +114,7 @@ def build_section_c_site() -> Project:
             # BH01: CP/RC, no barrier, no slope, ROAD = "YES"
             Borehole(
                 hole_number="BH01",
-                road="YES",
+                on_road=True,
                 phases=[
                     DrillingPhase(method=DrillingMethod.CABLE_PERCUSSION, depth_m=10.0),
                     DrillingPhase(method=DrillingMethod.ROTARY_CORE_HARD, depth_m=8.0),
@@ -153,7 +153,7 @@ def build_section_c_site() -> Project:
             # BH05: CP only, ROAD = "YES" — counted by C18 but by no other Section C item
             Borehole(
                 hole_number="BH05",
-                road="YES",
+                on_road=True,
                 phases=[
                     DrillingPhase(method=DrillingMethod.CABLE_PERCUSSION, depth_m=10.0),
                 ],

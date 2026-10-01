@@ -67,11 +67,3 @@ class PSEVTest(StrEnum):
     P = "P"
     S = "S"
     EV = "EV"
-
-
-class PiezometerType(StrEnum):
-    """Borehole instrumentation type recorded in the Log Tracker."""
-
-    NONE = "none"
-    PIEZOMETER = "piezometer"
-    STANDPIPE = "standpipe"

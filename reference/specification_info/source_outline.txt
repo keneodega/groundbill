@@ -1,0 +1,354 @@
+# Source outline: Draft Automated Irish GI Spec (2019)
+# Extracted from: reference/specification_info/Specification/UK Spec/
+#                 Draft Automated Irish GI Spec (Under Review) 20 Feb 2019.docm
+
+# File stats:
+#   Body paragraphs: 931
+#   Tables         : 33
+#   Top-level sections: Preamble + Schedule 1-5 (6 total)
+
+# Convention in source:
+#   "xx"  = short placeholder (name, organisation)
+#   "XXX" = longer placeholder
+#   Boilerplate text is non-placeholder — treat as legal wording, copy verbatim
+
+# Heading outline (indented by level):
+
+L1 [H1 NoTOC] Notice
+L1 [H3 No Numb] Document history
+L1 [H3 No Numb] Client signoff
+L1 [H1 NoTOC] Contents
+L1 [H3 No Numb] ChapterPage
+L1 [heading 1] PREAMBLE TO THE SPECIFICATION
+L1 [heading 1] Schedule 1: Information and site-specific requirements
+  L2 [heading 2] S1.1 Name of Contract
+  L2 [heading 2] S1.2 Investigation Supervisor
+  L2 [heading 2] S1.3 Description of site
+  L2 [heading 2] S1.4 Main works proposed and purpose of this contract
+  L2 [heading 2] S1.5 Scope of investigation
+  L2 [heading 2] S1.6 Geology and ground conditions
+  L2 [heading 2] S1.7 Schedule of drawing(s) and documents
+  L2 [heading 2] S1.8 General Requirements (Specification Section 3)
+    L3 [heading 3] S1.8.1 Quality management system (Clause 3.3)
+    L3 [heading 3] S1.8.2 Professional Attendance (Clause 3.5.2)
+    L3 [heading 3] S1.8.3 Provision of ground practitioners and other personnel (Clauses 3.6.1 and 3.6.2)
+    L3 [heading 3] S1.8.4 Hazardous ground, land affected by contamination and notifiable invasive weeds (Clauses 3.7.1 and 3.22)
+    L3 [heading 3] S1.8.5 Additional information on services not shown on Contract drawings (Clause 3.7.2)
+    L3 [heading 3] S1.8.6 Known/suspected mine workings, mineral extractions, etc. (Clause 3.7.3)
+    L3 [heading 3] S1.8.7 Protected species (Clause 3.7.4)
+    L3 [heading 3] S1.8.8 Archaeological remains (Clause 3.7.5)
+    L3 [heading 3] S1.8.9 Security of site (Clause 3.11)
+    L3 [heading 3] S1.8.10 Traffic management measures (Clause 3.12)
+    L3 [heading 3] S1.8.11 Restricted working hours (Clause 3.13)
+    L3 [heading 3] S1.8.12 Trainee site operatives (Clause 3.14.1)
+    L3 [heading 3] S1.8.13 Contamination avoidance and/or aquifer protection measures required (Clauses 3.15.2 and 3.15.3)
+    L3 [heading 3] S1.8.14 Maximum period for boring, pitting or trenching through hard material, hard stratum or obstruction (Clauses 2.8, 4.3 and 6.4)
+    L3 [heading 3] S1.8.15 Reinstatement requirements (Clause 3.16)
+    L3 [heading 3] S1.8.16 Hygiene facilities required (Clauses 2.20 and 3.16.1)
+    L3 [heading 3] S1.8.17 Unavoidable damage to be reinstated by Contractor (Clause 3.16.1)
+    L3 [heading 3] S1.8.18 Accuracy of exploratory hole locations (Clauses 3.19 and 3.20)
+    L3 [heading 3] S1.8.19 Photography requirements (Clause 3.25)
+    L3 [heading 3] S1.8.20 Unexploded ordnance
+    L3 [heading 3] S1.8.21 Access
+    L3 [heading 3] S1.8.22 Landowners/Occupiers
+  L2 [heading 2] S1.9 Percussion boring (Specification Section 4) Particular restrictions/relaxations
+    L3 [heading 3] S1.9.1 Permitted methods and restrictions (Clauses 4.1 to 4.4)
+    L3 [heading 3] S1.9.2 Backfilling (Clause 4.5)
+    L3 [heading 3] S1.9.3 Dynamic sampling (Clause 4.6)
+  L2 [heading 2] S1.10 Rotary drilling (Specification Section 5) Particular restrictions/relaxations
+    L3 [heading 3] S1.10.1 Augering requirements and restrictions (Clause 5.1)
+    L3 [heading 3] S1.10.2 Particular rotary drilling techniques (Clause 5.2)
+    L3 [heading 3] S1.10.3 Drilling fluid type and collection (Clause 5.3)
+    L3 [heading 3] S1.10.4 Rotary core drilling equipment and core diameter (Clauses 5.4.1 and 5.4.2)
+    L3 [heading 3] S1.10.5 Core logging (Clause 5.4.6)
+    L3 [heading 3] S1.10.6 Core sub-samples for laboratory testing (Clause 5.4.7)
+    L3 [heading 3] S1.10.7 Address for delivery of selected cores (Clauses 5.4.8 and 5.4.9)
+    L3 [heading 3] S1.10.8 Rotary open-hole drilling general requirements (Clause 5.5.1)
+    L3 [heading 3] S1.10.9 Rotary open-hole drilling for locating mineral seams, mine workings, etc. (Clause 5.5.2)
+    L3 [heading 3] S1.10.10 Open-hole resonance (sonic) drilling (Clause 5.6.1)
+    L3 [heading 3] S1.10.11 Resonance (sonic) drilling with sampling or continuous coring (Clause 5.6.2)
+    L3 [heading 3] S1.10.12 Backfilling (Clause 5.7)
+    L3 [heading 3] S1.10.13 Core photographic requirements (Clause 5.8)
+  L2 [heading 2] S1.11 Pitting and trenching (Specification Section 6) Particular restrictions/relaxations
+    L3 [heading 3] S1.11.1 Indirect detection of buried services and inspection pits (Clauses 3.8.3 and 6.1)
+    L3 [heading 3] S1.11.2 Restrictions on plant or pitting/trenching methods (Clauses 6.2 and 6.3)
+    L3 [heading 3] S1.11.3 Entry of personnel (Clause 6.5)
+    L3 [heading 3] S1.11.4 Alternative pit and trench dimensions (Clause 6.7)
+    L3 [heading 3] S1.11.5 Abstracted groundwater from land affected by contamination (Clause 6.9.2)
+    L3 [heading 3] S1.11.6 Backfilling (Clause 6.10)
+    L3 [heading 3] S1.11.7 Photographic requirements (Clause 6.12)
+  L2 [SubHeading] Trial Pits:
+  L2 [SubHeading] Cores:
+L1 [Heading 3NoNumb] S1.11.8 Artificial lighting (Clause 6.12.2)
+    L3 [heading 3] S1.11.9 Provision of pitting equipment and crew for Investigation Supervisor’s use (Clause 6.13)
+  L2 [heading 2] S1.12 Sampling and monitoring during intrusive investigation (Specification Section 7) Particular restrictions/relaxations
+    L3 [heading 3] S1.12.1 Address for delivery of selected geotechnical samples (Clause 7.6.1)
+    L3 [heading 3] S1.12.2 Retention and disposal of geotechnical samples (Clause 7.6.2)
+    L3 [heading 3] S1.12.3 Frequency of sampling for geotechnical purposes (Clause 7.6.3-7.6.11)
+    L3 [heading 3] S1.12.4 Open-tube and piston sample diameters (Clause 7.6.5)
+    L3 [heading 3] S1.12.5 Retention of cutting shoe samples (Clause 7.6.5)
+    L3 [heading 3] S1.12.6 Thin walled sampling (Clause 7.6.12)
+    L3 [heading 3] S1.12.7 Groundwater level measurements during exploratory hole construction (Clause 7.7)
+    L3 [heading 3] S1.12.8 Special geotechnical sampling (Clause 7.8)
+    L3 [heading 3] S1.12.9 Address for delivery of selected samples (Clause 7.9.2)
+    L3 [heading 3] S1.12.10 Retention and disposal of contamination/WAC samples (Clause 7.9.3)
+    L3 [heading 3] S1.12.11 Frequency of sampling for Geo-environmental purposes (Clause 7.9.4)
+    L3 [heading 3] S1.12.12 Sampling method (Clause 7.9.5)
+    L3 [heading 3] S1.12.13 Headspace testing (Clause 7.9.8)
+  L2 [heading 2] S1.13 Probing and cone penetration testing (Specification Section 8) Particular restrictions/relaxations
+    L3 [heading 3] S1.13.1 Type(s) and reporting of dynamic probing (Clauses 8.1.1 and 8.1.2)
+    L3 [heading 3] S1.13.2 Capacity and equipment requirements for cone penetration testing (Clause 8.2.1)
+    L3 [heading 3] S1.13.3 Reporting of cone penetration testing parameters (Clause 8.2.4)
+    L3 [heading 3] S1.13.4 Seismic cone equipment requirements (Clause 8.3.1)
+    L3 [heading 3] S1.13.5 Interpretation of seismic cone tests (Clause 8.3.4)
+    L3 [heading 3] S1.13.6 Other cone or specialist probes (Clause 8.4)
+  L2 [heading 2] S1.14 Geophysical testing (Specification Section 9) Particular restrictions/relaxations
+    L3 [heading 3] S1.14.1 Geophysical survey objectives (Clauses 9.1.1)
+    L3 [heading 3] S1.14.2 Requirements for Ground Specialist geophysicist (Clause 9.1.1)
+    L3 [heading 3] S1.14.3 Trials of geophysical methods (Clause 9.1.1)
+    L3 [heading 3] S1.14.4 Types of geophysics required (Clause 9.1.1)
+    L3 [heading 3] S1.14.5 Information provided (Clause 9.2)
+    L3 [heading 3] S1.14.6 Horizontal data density (Clause 9.3)
+    L3 [heading 3] S1.14.7 Level datum (Clause 9.4)
+    L3 [heading 3] S1.14.8 Geophysical survey report (Clause 9.7)
+  L2 [heading 2] S1.15 In situ testing (Specification Section 10) Particular restrictions/relaxations
+    L3 [heading 3] S1.15.1 Tests in accordance with Irish, UK or European Standards (Clause 10.3)
+    L3 [heading 3] S1.15.2 Hand penetrometer and hand vane for shear strength (Clause 10.4.1)
+    L3 [heading 3] S1.15.3 Self-boring pressuremeter and high-pressure dilatometer testing and reporting (Clause 10.5.1)
+    L3 [heading 3] S1.15.4 Driven or push-in pressuremeter testing and reporting requirements (Clause 10.5.2)
+    L3 [heading 3] S1.15.5 Menard pressuremeter tests (Clause 10.5.3)
+    L3 [heading 3] S1.15.6 Soil infiltration test (Clause 10.6)
+    L3 [heading 3] S1.15.7 Special in situ testing and reporting requirements (Clause 10.7)
+    L3 [heading 3] S1.15.8 Interface probes (Clause 10.8)
+    L3 [heading 3] S1.15.9 Contamination screening tests (Clause 10.9)
+    L3 [heading 3] S1.15.10 Metal detection (Clause 10.10)
+  L2 [heading 2] S1.16 Instrumentation (Specification Section 11) Particular restrictions/relaxations
+    L3 [heading 3] S1.16.1 Protective covers for installations (Clause 11.2)
+    L3 [heading 3] S1.16.2 Protective fencing (Clause 11.3)
+    L3 [heading 3] S1.16.3 Standpipe and standpipe piezometer installations (Clauses 11.4.1 and 11.4.2)
+    L3 [heading 3] S1.16.4 Other piezometer installations (Clause 11.4.3)
+    L3 [heading 3] S1.16.5 Development of standpipes and standpipe piezometers (Clause 11.4.5)
+    L3 [heading 3] S1.16.6 Ground gas standpipes (Clause 11.5)
+    L3 [heading 3] S1.16.7 Inclinometer installations (Clause 11.6)
+    L3 [heading 3] S1.16.8 Slip indicators (Clause 11.7)
+    L3 [heading 3] S1.16.9 Extensometers and settlement gauges (Clause 11.8)
+    L3 [heading 3] S1.16.10 Settlement monuments (Clause 11.9)
+    L3 [heading 3] S1.16.11 Removal of installations (Clause 11.10)
+    L3 [heading 3] S1.16.12 Other instrumentation (Clause 11.11)
+  L2 [heading 2] S1.17 Installation monitoring and sampling (Specification Section 11) Particular restrictions/relaxations
+    L3 [heading 3] S1.17.1 Groundwater level readings in installations (Clause 12.2)
+    L3 [heading 3] S1.17.2 Groundwater sampling from installations (Clause 12.3.1)
+    L3 [heading 3] S1.17.3 Purging/micro-purging (Clause 12.3.2)
+    L3 [heading 3] S1.17.4 Ground gas monitoring (Clause 12.4)
+    L3 [heading 3] S1.17.5 Sampling from ground gas installations (Clause 12.5)
+    L3 [heading 3] S1.17.6 Other monitoring (Clause 12.8)
+  L2 [heading 2] S1.18 Daily records (Specification Section 13) Particular restrictions/relaxations
+    L3 [heading 3] S1.18.1 Information for daily records (Clause 13.1)
+    L3 [heading 3] S1.18.2 Special in situ tests and instrumentation records (Clause 13.4)
+L1 [Heading 3NoNumb] Further particular Contract restrictions/relaxations shall be entered below, using sequential numbers to those above
+  L2 [heading 2] S1.19 Geotechnical laboratory testing (Specification Section 14) Particular restrictions/relaxations
+    L3 [heading 3] S1.19.1 Investigation Supervisor or Contractor to schedule testing (Clause 14.1.1)
+    L3 [heading 3] S1.19.2 Tests required (Clause 14.1.2)
+    L3 [heading 3] S1.19.3 Specifications for tests not covered by BS 1377 and options under BS 1377 (Clauses 14.2.1 and 14.4)
+    L3 [heading 3] S1.19.4 INAB or UKAS accreditation to be adopted (Clause 14.3)
+    L3 [heading 3] S1.19.5 Rock testing requirements (Clause 14.5)
+    L3 [heading 3] S1.19.6 Chemical testing for aggressive ground/groundwater for concrete (Clause 14.6) (Test Suites A-D are overleaf)
+    L3 [heading 3] S1.19.7 Laboratory testing on site (Clause 14.7)
+    L3 [heading 3] S1.19.8 Special laboratory testing (Clause 14.8)
+  L2 [heading 2] S1.20 Geoenvironmental laboratory testing (Specification Section 15) Particular restrictions/relaxations
+    L3 [heading 3] S1.20.1 Investigation Supervisor or Contractor to schedule testing (Clause 15.1)
+    L3 [heading 3] S1.20.2 Accreditation required (Clause 15.2)
+    L3 [heading 3] S1.20.3 Chemical testing for contamination (Clause 15.3) (Test Suites E-G are overleaf)
+    L3 [heading 3] S1.20.4 Waste characterisation (Clause 15.4)
+    L3 [heading 3] S1.20.5 Waste Acceptance Criteria testing (Clause 15.5) (Test Suites H-J are overleaf)
+    L3 [heading 3] S1.20.6 Laboratory testing (Clause 15.6)
+    L3 [heading 3] S1.20.7 Special laboratory testing (Clause 15.7)
+  L2 [heading 2] S1.21 Reporting (Specification Section 16) Particular restrictions/relaxations
+    L3 [heading 3] S1.21.1 Form of exploratory hole logs (Clauses 16.1 and 16.2.1)
+    L3 [heading 3] S1.21.2 Information on exploratory hole logs (Clause 16.2.2)
+    L3 [heading 3] S1.21.3 Variations to final digital data supply requirements (Clause 16.5.1)
+    L3 [heading 3] S1.21.4 Preliminary digital data (Clause 16.5.3)
+    L3 [heading 3] S1.21.5 Type(s) of report required (Clause 16.6)
+    L3 [heading 3] S1.21.6 Electronic report requirements (Clause 16.6.3)
+    L3 [heading 3] S1.21.7 Format and contents of Desk Study Report (Clause 16.7)
+    L3 [heading 3] S1.21.8 Contents of Ground Investigation Report (or specified part thereof) (Clause 16.9)
+    L3 [heading 3] S1.21.9 Contents of Geotechnical Design Report (or specified part thereof) (Clause 16.9)
+    L3 [heading 3] S1.21.10 Time for supply of electronic information (Clause 16.10.1)
+    L3 [heading 3] S1.21.11 Electronic information transmission media (Clause 16.10.2)
+    L3 [heading 3] S1.21.12 Report approval (Clause 16.11)
+    L3 [heading 3] S1.21.13 Laboratory testing duration
+L1 [heading 1] Schedule 2: Exploratory holes
+  L2 [heading 2] S2.1 Hole number
+  L2 [heading 2] S2.2 Type
+  L2 [heading 2] S2.4 National grid reference (ITM)
+  L2 [heading 2] S2.5 Approximate ground level
+  L2 [heading 2] S2.6 Remarks
+L1 [heading 1] Schedule 3: Investigation Supervisor’s facilities
+  L2 [heading 2] S3.1 Accommodation
+  L2 [heading 2] S3.2 Furnishings
+  L2 [heading 2] S3.3 Services
+  L2 [heading 2] S3.4 Equipment
+  L2 [heading 2] S3.5 Transport
+  L2 [heading 2] S3.6 Personal Protective Equipment for Investigation Supervisor
+L1 [heading 1] Schedule 4: Specification amendments
+L1 [heading 1] Schedule 5: Specification additions
+          L6 [heading 6] Exploratory Hole Plan
+          L6 [heading 6] Designers Risk Register
+          L6 [heading 6] Pre-Construction Information Pack
+
+======================================================================
+# Phase 2a follow-up: scanning the other master specs
+======================================================================
+
+## Master GI Spec rev D.docx (PW-CF flavour)
+   Body paragraphs: 1401
+   Tables         : 33
+
+## Master Small GI Specification Rev C.docx (small-project flavour)
+   Body paragraphs: 286
+   Tables         : 8
+
+## Key finding
+
+Master GI Spec rev D uses the SAME Schedule 1-5 taxonomy as the .docm
+(with slightly more content). It references "Specification Section 3",
+"Section 4" etc. but does NOT contain the main Specification body --
+those sections live in an EXTERNAL document not in this reference tree.
+
+Master Small GI Specification Rev C is a completely DIFFERENT document type
+-- a self-contained "small GI" spec with its own flat structure
+(Introduction / Ground Investigation Schedule / Sampling Requirements /
+Lab Testing / Reporting / Further Information). It does not use the
+Schedule 1-5 taxonomy at all.
+
+## Implication for build plan
+
+The "main Specification body (Sections 1-16)" that S1.x cross-references
+is not available in our reference folder. Generating "full spec + schedules"
+as one standalone document therefore means one of:
+(a) Adopt Master Small GI Spec Rev C style as the main body, drop the
+    Schedule 1-5 numbering in favour of its simpler chapter structure.
+(b) Keep the Schedule 1-5 structure from the .docm but add our own
+    "Section 1-16" main body -- would require sourcing/drafting from
+    scratch or from an external standard (TII/OPW).
+(c) Schedules only (the original plan), accept that the main body
+    attaches separately.
+
+======================================================================
+# Master Small GI Specification Rev C - detailed outline
+# (chosen as source for the main specification body)
+======================================================================
+
+## Heading outline
+
+L1 [heading 1] Introduction
+  L2 [heading 2] 1.1 Roles
+  L2 [heading 2] 1.2 Timescales
+  L2 [heading 2] Anticipated Geology
+    L3 [heading 3] Drift Geology
+    L3 [heading 3] Solid Geology
+    L3 [heading 3] Historical Ground Investigation Information
+    L3 [heading 3] Mining Information
+L1 [heading 1] Ground Investigation Schedule
+L1 [heading 1] Geotechnical Sampling and In-situ Testing Requirements
+  L2 [heading 2] Hard Standing
+  L2 [heading 2] Cable Percussion Boring
+  L2 [heading 2] Rotary Drilling
+  L2 [heading 2] Dynamic probes
+  L2 [heading 2] Trial Pits
+  L2 [heading 2] Slit trenching
+  L2 [heading 2] Insitu Testing, Sampling and Monitoring
+  L2 [heading 2] Contamination avoidance and/or aquifer protection measures required
+  L2 [heading 2] Photography requirements
+L1 [heading 1] Laboratory Testing
+  L2 [heading 2] Geotechnical Laboratory Testing (Soil)
+  L2 [heading 2] Chemical Testing (Soil)
+L1 [heading 1] Testing Scheduling
+L1 [heading 1] Reporting
+L1 [heading 1] Further Information
+  L2 [heading 2] Services Information
+  L2 [heading 2] Health and Safety Requirements
+  L2 [heading 2] Security of the site
+  L2 [heading 2] Traffic management measures
+  L2 [heading 2] Access to site
+
+## Sample body text under selected chapters
+(shows clause wording and placeholder pattern)
+
+### Introduction
+  [Normal         ] A ground investigation is proposed for a new housing development located to the North of Cork City as shown in figure 1....
+  [caption        ] Figure 1-1 - Aerial image of the site (Google Maps)
+  [Normal         ] The following provides an overview of the ground investigation proposal together with details of the investigation requi...
+  [Normal         ] The Specification referred to in the Tender shall be Engineers Ireland’s ‘Specification and Related Documents for Ground...
+
+### 1.1 Roles
+  [Body Text      ] The following roles are applicable to this job:
+  [Body Text      ] Project Supervisor Design Process (PSDP): - AtkinsRéalis
+  [Body Text      ] Employer: O Cualann Cohousing Alliance CLG
+  [Body Text      ] Investigation Supervisor - AtkinsRéalis
+  [Body Text      ] Details of the nominated Investigation Supervisor on behalf of AtkinsRéalis shall be confirmed prior to the commencement...
+
+### Anticipated Geology
+  [Body Text      ] The following summary of anticipated ground conditions is based on published information. No assurance is given to its a...
+
+### Ground Investigation Schedule
+  [Normal         ] The schedule of the proposed ground investigation is presented in Table 1.
+  [Normal         ] The boreholes, dynamic probes and trial pits are proposed to determine the geology, groundwater and underlying bedrock c...
+  [Normal         ] The slit trenches are proposed to locate and identify underground services and perform soil sampling for geotechnical an...
+  [Table Title    ] Table 1 - Exploratory Hole Requirements
+  [Table Title    ] Boreholes
+  [Normal         ] The proposed exploratory locations are shown on drawing number 5189587-SK003. Final locations to be agreed on site with ...
+  [Normal         ] CP: Cable Percussion, RC: Rotary Coring.
+  [Table Title    ] Trial Pits
+  [Normal         ] The proposed exploratory locations are shown on drawing number 5189587-SK003. Final locations to be agreed on site with ...
+
+### Cable Percussion Boring
+  [NormalNoSpace  ] The Contractor shall select plant appropriate to the proposed drill locations, depths and anticipated geological conditi...
+  [NormalNoSpace  ] Soil boring shall be undertaken using a rig with the capability of undertaking Standard Penetration Tests (SPT) and U100...
+  [NormalNoSpace  ] Casing may be required.
+  [NormalNoSpace  ] Cable Percussion holes shall be taken to the indicative depth proposed in Schedule 2 to this Specification or refusal wh...
+  [NormalNoSpace  ] Starting hole diameter shall be a minimum of 200 mm. The Contractor shall agree with the Investigation Supervisor reduct...
+  [NormalNoSpace  ] The position, number and depth of the exploratory hole may be subject to adjustment on-site as directed by the Engineer.
+  [NormalNoSpace  ] The Contractor shall allow for whatever plant and/or equipment they deem necessary in order to safely locate the drillin...
+  [Normal         ] Any groundwater seepage shall be recorded on the borehole logs.
+  [Normal         ] The Contractor is required to obtain the Engineer’s approval before commencing and before backfilling any borehole.  The...
+
+### Rotary Drilling
+  [Normal         ] Rotary coring is required as cable percussive technique follow-on for 3 of the boreholes.  It is expected to be required...
+  [Normal         ] The Contractor may use an alternative method for drilling in the overburden and rock, subject to approval. This method m...
+  [Normal         ] Rotary coring may also be permitted or required through soil from 1.20m level or at depth instead of cable percussive te...
+  [Normal         ] Where rotary coring is scheduled at cable percussive borehole locations, it is to be carried out from the final depth of...
+  [Normal         ] If the cable percussive borehole does not reach bedrock, rotary coring is required from the final depth of the cable per...
+  [Normal         ] All boreholes shall be backfilled (grout/bentonite pellets or instrumentation installation) immediately upon completion ...
+  [Normal         ] Where exploratory holes are carried out in grassed areas, the ground shall be reinstated as close as possible to the exi...
+  [Normal         ] Where boreholes are not completed in the day they are commenced or when left unattended, the entire work area shall be f...
+  [Normal         ] Rotary cored boreholes are to be carried out to produce continuous core of not less than 92mm in rock and 100mm in soil ...
+  [Normal         ] Not permitted to advance the hole to the schedule depth unless specified in Schedule 2.  If the contractor choses to use...
+
+### Geotechnical Laboratory Testing (Soil)
+  [Normal         ] The extent of geotechnical laboratory soil testing is anticipated to comprise, but not limited to, the following:
+  [List Bullet    ] Soil Classification Tests
+  [List Bullet    ] Soil Strength Tests
+  [List Bullet    ] Chemical Tests
+  [Normal         ] Additional geotechnical tests (both type and quantity) may be required depending on the samples recovered and ground con...
+
+### Testing Scheduling
+  [Normal         ] Blank laboratory testing schedules and the driller’s logs shall be provided to the Designer within 24 hours following co...
+
+### Reporting
+  [Normal         ] Typed Engineer’s logs are to be submitted to the Engineer’s Representative within one week of completion of the explorat...
+  [Normal         ] A standard Factual Report is required and shall be produced in accordance with Engineers Ireland’s ‘Specification and Re...
+  [Normal         ] A standard Interpretive Report is required and shall be produced in accordance with Engineers Ireland’s ‘Specification a...
+  [Normal         ] All contamination testing results must be presented in both PDF and Excel format. AGS data 4.0 shall be provided for the...
+
+### Health and Safety Requirements
+  [Body Text      ] The Safety Health and Welfare at Work Construction Regulations 2013 (and SI 291 2013), are applicable to this contract.
+  [NormalNoSpace  ] Prior to the start of the site operations the Contractor shall provide risk assessments and method statements covering a...
+  [Body Text      ] Due to the special circumstances with COVID-19, the HSE & HSA Guidance for construction workers operating on sites must ...
+  [Body Text      ] HSE: https://www.hse.ie/eng/services/news/newsfeatures/covid19-updates/
+  [NormalNoSpace  ] HSA: https://www.hsa.ie/eng/topics/covid-19_coronavirus_information_and_resources/Face shield/mask and disposable gloves...
+
+## Placeholder patterns in Rev C
+  "xx"/"xxx" occurrences   : 1
+  "XXX"/"XXXX" occurrences : 3
+  [bracketed] occurrences  : 0

@@ -1,7 +1,9 @@
 """Fixture: a representative mixed-hole project for BOQ engine tests.
 
 Counts: 3 boreholes + 2 trial pits + 1 trench + 1 CPT + 1 dynamic sample.
-Expected A8 set-out points = 3 + 2 + (1 * 2) + 0 + 0 + 1 + 1 + 0 = 9.
+Expected A8 set-out points = 3 + 2 + (0 * 2) + 0 + 0 + 1 + 1 + 0 = 7.
+The trench ST01 has no recorded depth, so Trenches!K (=IF(J3>0,1,0)) is 0
+and it is not yet set out.
 """
 
 from groundbill.models import (

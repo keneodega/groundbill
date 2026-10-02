@@ -110,8 +110,15 @@ def _borehole_remarks(bh: Borehole) -> str:
     parts: list[str] = []
     if bh.tests:
         parts.append("Tests: " + ",".join(sorted(t.value for t in bh.tests)))
-    if bh.piezometer_type.value != "none":
-        parts.append(f"Instrumentation: {bh.piezometer_type.value}")
+    # Log Tracker columns BI ('Pizezometer') and BL ('Standpipe (mm)') are
+    # separate yes/no flags, so a borehole can carry both installations.
+    installations = [
+        name
+        for name, present in (("piezometer", bh.piezometer), ("standpipe", bh.standpipe))
+        if present
+    ]
+    if installations:
+        parts.append("Instrumentation: " + ", ".join(installations))
     return "; ".join(parts)
 
 

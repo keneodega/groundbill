@@ -183,6 +183,33 @@ def test_ch2_borehole_row_has_correct_type_and_depth(tmp_path: Path) -> None:
     assert bh01_row.cells[3].text == "10.00"
 
 
+def test_ch2_borehole_remarks_list_piezometer_and_standpipe(tmp_path: Path) -> None:
+    from groundbill.models import Borehole, DrillingMethod, DrillingPhase
+
+    def _bh(number: str, **flags) -> Borehole:
+        return Borehole(
+            hole_number=number,
+            phases=[DrillingPhase(method=DrillingMethod.CABLE_PERCUSSION, depth_m=10.0)],
+            total_schedule_depth_m=10.0,
+            **flags,
+        )
+
+    project = build_basic_site().model_copy(
+        update={
+            "boreholes": [
+                _bh("BH01", piezometer=True),
+                _bh("BH02", piezometer=True, standpipe=True),
+                _bh("BH03"),
+            ]
+        }
+    )
+    out = generate_spec(project, tmp_path / "spec.docx")
+    rows = {row.cells[0].text: row.cells[4].text for row in load_docx(str(out)).tables[0].rows[1:]}
+    assert rows["BH01"] == "Instrumentation: piezometer"
+    assert rows["BH02"] == "Instrumentation: piezometer, standpipe"
+    assert rows["BH03"] == ""
+
+
 def test_ch2_includes_drawing_reference_when_set(tmp_path: Path) -> None:
     project = build_basic_site().model_copy(
         update={"location_drawing_reference": "DWG-12345-SK001"}

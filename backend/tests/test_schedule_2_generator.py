@@ -14,7 +14,6 @@ from groundbill.models import (
     DynamicProbe,
     DynamicSample,
     InspectionPit,
-    PiezometerType,
     Project,
     Soakaway,
     Trench,
@@ -164,17 +163,35 @@ def test_borehole_with_piezometer_shows_instrumentation_in_remarks(tmp_path: Pat
                 hole_number="BH10",
                 phases=[DrillingPhase(method=DrillingMethod.CABLE_PERCUSSION, depth_m=10.0)],
                 total_schedule_depth_m=10.0,
-                piezometer_type=PiezometerType.PIEZOMETER,
+                piezometer=True,
             )
         ],
     )
     out = generate_schedule_2(project, tmp_path / "schedule_2.xlsx")
     _, ws = _load(out)
     r = _find_row_by_number(ws, "BH10")
-    remarks = ws.cell(row=r, column=5).value
-    assert remarks is not None
-    assert "Instrumentation" in remarks
-    assert "piezometer" in remarks
+    assert ws.cell(row=r, column=5).value == "Instrumentation: piezometer"
+
+
+def test_borehole_with_piezometer_and_standpipe_lists_both(tmp_path: Path) -> None:
+    project = Project(
+        name="BH with PIE and SP",
+        site_address="Somewhere",
+        contract_route=ContractRoute.PRIVATE,
+        boreholes=[
+            Borehole(
+                hole_number="BH11",
+                phases=[DrillingPhase(method=DrillingMethod.CABLE_PERCUSSION, depth_m=10.0)],
+                total_schedule_depth_m=10.0,
+                piezometer=True,
+                standpipe=True,
+            )
+        ],
+    )
+    out = generate_schedule_2(project, tmp_path / "schedule_2.xlsx")
+    _, ws = _load(out)
+    r = _find_row_by_number(ws, "BH11")
+    assert ws.cell(row=r, column=5).value == "Instrumentation: piezometer, standpipe"
 
 
 def test_empty_project_produces_headers_only(tmp_path: Path) -> None:

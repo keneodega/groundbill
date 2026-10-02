@@ -1,35 +1,60 @@
-"""Fixture: a project designed to exercise every Section I branch.
+"""Fixture: a project designed to exercise every Section I formula.
 
-Borehole mix
-------------
-- BH01: piezometer, installation_complete, piezometer_plain_depth=10m, road=None
-  → I1 += 1, I3 += 10, I10 += 1 (non-road)
-- BH02: standpipe, installation_complete, standpipe_plain=8m, slotted=3m,
-  diameter=50mm, road="RURAL"
-  → I2 += 1, I4 += 8, I5 += 3, I6 += 1, I9 += 1 (rural)
-- BH03: standpipe, installation_complete, standpipe_plain=5m, slotted=2m,
-  diameter=19mm, road=None
-  → I2 += 1, I4 += 5, I5 += 2, I7 += 1, I10 += 1 (non-road)
-- BH04: no installation (piezometer_type=NONE) → excluded
+Expected values are derived by hand from the Calculator formulas (the Log
+Tracker in `reference/excel/` is an empty template, so there are no
+Excel-calculated outputs to copy).
 
-Expected BH totals
-------------------
-- I1 = 1, I2 = 2, I3 = 10, I4 = 13, I5 = 5
-- I6 = 1, I7 = 1, I8 = 3
-- I9 = 1 (BH02 rural), I10 = 2 (BH01 + BH03 non-road)
+Boreholes
+---------
+=====  ====  ==========  =========  =========  =========  ==========  ==
+Hole   ROAD  Piezometer  Plain      Standpipe  Plain      Slotted     BP
+       (BH)  (BI)        (BJ)       (BL)       (BM)       (BN)
+=====  ====  ==========  =========  =========  =========  ==========  ==
+BH01   YES   YES         8.0        -          -          -           1
+BH02   NO    -           -          YES        3.0        6.0         1
+BH03   NO    YES         5.0        YES        2.0        4.0         1
+BH04   YES   -           -          -          -          -           0
+BH05   NO    -           -          -          1.5        -           0
+=====  ====  ==========  =========  =========  =========  ==========  ==
+Totals                   BJ92 13.0             BM92 6.5   BN92 10.0
 
-Dynamic sample mix
-------------------
-- DS01: installation_complete, plain=4m, slotted=2m, diameter=50mm, road="RURAL"
-  → I11 += 1, I12 += 4, I13 += 2, I14 += 1, I17 += 1
-- DS02: installation_complete, plain=3m, slotted=1m, diameter=19mm, road=None
-  → I11 += 1, I12 += 3, I13 += 1, I15 += 1, I18 += 1
-- DS03: NOT installation_complete → excluded
+BH03 has both a piezometer and a standpipe. BH04 is on a road but has no
+installation. BH05 has a standpipe plain depth entered without the YES flag:
+its metres are measured (totals row) and it counts in I9 (BM > 0), but it has
+no cover because BP = 0.
 
-Expected DS totals
-------------------
-- I11 = 2, I12 = 7, I13 = 3, I14 = 1, I15 = 1
-- I16 = 2, I17 = 1, I18 = 1
+Dynamic sampling holes
+----------------------
+=====  ========  =============  =========  ===========  =
+Hole   ROAD (I)  Standpipe (K)  Plain (L)  Slotted (M)  O
+=====  ========  =============  =========  ===========  =
+DS01   YES       YES            1.0        3.0          1
+DS02   NO        YES            1.5        2.5          1
+DS03   NO        -              -          -            0
+=====  ========  =============  =========  ===========  =
+Totals                          L92 2.5    M92 5.5
+
+Counts: piezometers (BI) = 2; borehole standpipes (BL) = 2; dynamic sampling
+standpipes (K) = 2.
+
+Expected Section I quantities
+-----------------------------
+- I1  =BJ92 + BM92 + L92          = 13.0 + 6.5 + 2.5 = 22.0
+- I2  =COUNTIF(BI) + COUNTIF(K)   = 2 + 2 = 4
+- I3  =D12                        = 4
+- I4  =BJ92                       = 13.0
+- I5  =COUNTIF(BI) × 1            = 2
+- I6  =BN92 + M92                 = 10.0 + 5.5 = 15.5
+- I7  =D16                        = 15.5
+- I8  =BM92 + L92                 = 6.5 + 2.5 = 9.0
+- I9  =COUNTIF(BM > 0) + COUNTIF(O > 0) = 3 (BH02, BH03, BH05) + 2 = 5
+- I14 =(2 + 2 + 2) × 2            = 12
+- I16 ROAD "YES" and complete     = 1 (BH01) + 1 (DS01) = 2
+- I17 ROAD "NO" and complete      = 2 (BH02, BH03) + 1 (DS02) = 3
+- I19 =D27                        = 3
+- I20 =D27                        = 3
+
+All other Section I items are "Not Required".
 """
 
 from groundbill.models import (
@@ -38,10 +63,36 @@ from groundbill.models import (
     DrillingMethod,
     DrillingPhase,
     DynamicSample,
-    PiezometerType,
     Project,
     SiteCategory,
 )
+
+# Computed items only; every other item is "Not Required".
+EXPECTED_I_COMPUTED = {
+    "I1": 22.0,
+    "I2": 4,
+    "I3": 4,
+    "I4": 13.0,
+    "I5": 2,
+    "I6": 15.5,
+    "I7": 15.5,
+    "I8": 9.0,
+    "I9": 5,
+    "I14": 12,
+    "I16": 2,
+    "I17": 3,
+    "I19": 3,
+    "I20": 3,
+}
+
+
+def _borehole(number: str, **kwargs) -> Borehole:
+    return Borehole(
+        hole_number=number,
+        phases=[DrillingPhase(method=DrillingMethod.CABLE_PERCUSSION, depth_m=10.0)],
+        total_schedule_depth_m=10.0,
+        **kwargs,
+    )
 
 
 def build_section_i_site() -> Project:
@@ -51,73 +102,40 @@ def build_section_i_site() -> Project:
         contract_route=ContractRoute.PRIVATE,
         site_category=SiteCategory.GREEN,
         boreholes=[
-            # BH01: piezometer, installed, non-road
-            Borehole(
-                hole_number="BH01",
-                phases=[DrillingPhase(method=DrillingMethod.CABLE_PERCUSSION, depth_m=15.0)],
-                total_schedule_depth_m=15.0,
-                piezometer_type=PiezometerType.PIEZOMETER,
-                piezometer_plain_depth_m=10.0,
-                installation_complete=True,
-                road=None,
+            _borehole("BH01", on_road=True, piezometer=True, piezometer_plain_depth_m=8.0),
+            _borehole(
+                "BH02",
+                standpipe=True,
+                standpipe_plain_depth_m=3.0,
+                standpipe_slotted_depth_m=6.0,
             ),
-            # BH02: standpipe, installed, rural road, 50mm
-            Borehole(
-                hole_number="BH02",
-                phases=[DrillingPhase(method=DrillingMethod.CABLE_PERCUSSION, depth_m=12.0)],
-                total_schedule_depth_m=12.0,
-                piezometer_type=PiezometerType.STANDPIPE,
-                standpipe_plain_depth_m=8.0,
-                standpipe_slotted_depth_m=3.0,
-                standpipe_diameter_mm=50,
-                installation_complete=True,
-                road="RURAL",
+            _borehole(
+                "BH03",
+                piezometer=True,
+                piezometer_plain_depth_m=5.0,
+                standpipe=True,
+                standpipe_plain_depth_m=2.0,
+                standpipe_slotted_depth_m=4.0,
             ),
-            # BH03: standpipe, installed, non-road, 19mm
-            Borehole(
-                hole_number="BH03",
-                phases=[DrillingPhase(method=DrillingMethod.CABLE_PERCUSSION, depth_m=10.0)],
-                total_schedule_depth_m=10.0,
-                piezometer_type=PiezometerType.STANDPIPE,
-                standpipe_plain_depth_m=5.0,
-                standpipe_slotted_depth_m=2.0,
-                standpipe_diameter_mm=19,
-                installation_complete=True,
-                road=None,
-            ),
-            # BH04: no instrumentation
-            Borehole(
-                hole_number="BH04",
-                phases=[DrillingPhase(method=DrillingMethod.CABLE_PERCUSSION, depth_m=8.0)],
-                total_schedule_depth_m=8.0,
-            ),
+            _borehole("BH04", on_road=True),
+            _borehole("BH05", standpipe_plain_depth_m=1.5),
         ],
         dynamic_samples=[
-            # DS01: installed, rural, 50mm
             DynamicSample(
                 sample_number="DS01",
-                depth_m=6.0,
-                installation_complete=True,
-                plain_depth_m=4.0,
-                slotted_depth_m=2.0,
-                standpipe_diameter_mm=50,
-                road="RURAL",
+                depth_m=4.0,
+                on_road=True,
+                standpipe=True,
+                plain_depth_m=1.0,
+                slotted_depth_m=3.0,
             ),
-            # DS02: installed, non-road, 19mm
             DynamicSample(
                 sample_number="DS02",
-                depth_m=5.0,
-                installation_complete=True,
-                plain_depth_m=3.0,
-                slotted_depth_m=1.0,
-                standpipe_diameter_mm=19,
-                road=None,
-            ),
-            # DS03: not installed
-            DynamicSample(
-                sample_number="DS03",
                 depth_m=4.0,
-                installation_complete=False,
+                standpipe=True,
+                plain_depth_m=1.5,
+                slotted_depth_m=2.5,
             ),
+            DynamicSample(sample_number="DS03", depth_m=4.0),
         ],
     )

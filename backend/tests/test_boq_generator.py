@@ -48,7 +48,7 @@ def test_a8_quantity_is_written_as_integer(tmp_path: Path):
     _, ws = _load(out)
 
     a8_row = _find_row_by_code(ws, "A8")
-    assert ws.cell(row=a8_row, column=4).value == 9
+    assert ws.cell(row=a8_row, column=4).value == 7
     assert ws.cell(row=a8_row, column=3).value == "Nr"
 
 
@@ -71,13 +71,15 @@ def test_empty_project_produces_zero_for_a8(tmp_path: Path):
     assert ws.cell(row=a8_row, column=4).value == 0
 
 
-def test_yellow_site_emits_yellow_extra_over_items(tmp_path: Path):
+def test_section_a_rows_match_reference_positions_for_any_category(tmp_path: Path):
     project = build_basic_site().model_copy(update={"site_category": SiteCategory.YELLOW})
     out = generate_boq(project, tmp_path / "boq.xlsx")
     _, ws = _load(out)
-    codes = _all_codes(ws)
-    assert "A3.1" in codes
-    assert "A3.2" not in codes
+    # Same row positions as 4_BOQ_Contractor_Rev_A.xlsx.
+    assert ws["A21"].value == "A3.1"
+    assert ws["A26"].value == "A5.2"
+    assert ws["A35"].value == "A8"
+    assert ws["A70"].value == "A31"
 
 
 def test_column_widths_match_contractor_boq_reference(tmp_path: Path):
@@ -86,6 +88,65 @@ def test_column_widths_match_contractor_boq_reference(tmp_path: Path):
     assert ws.column_dimensions["A"].width == 9.2
     assert ws.column_dimensions["B"].width == 35.8
     assert ws.column_dimensions["C"].width == 10.2
+
+
+def test_subheading_is_written_on_its_own_row_above_first_item(tmp_path: Path):
+    out = generate_boq(build_basic_site(), tmp_path / "boq.xlsx")
+    ws = load_workbook(out)["Section G"]
+
+    assert ws["A9"].value == "G"
+    assert ws["B9"].value == "Geophysical testing"
+
+    # Row 10 is the sub-heading (column B only); the first item follows on row 11.
+    assert ws["A10"].value is None
+    assert ws["B10"].value == "Land-based mapping techniques"
+    assert ws["B10"].font.bold is True
+    assert ws["B10"].font.underline == "single"
+    assert ws["A11"].value == "G1"
+    assert ws["C11"].value == "m²"
+    assert ws["F11"].value == '=IFERROR(D11*E11,"")'
+
+    # Same row positions as the reference workbook: G6 on row 17, G10 on row 22.
+    assert ws["B16"].value == "Borehole geophysical surveying"
+    assert ws["A17"].value == "G6"
+    assert ws["A22"].value == "G10"
+
+
+def test_coded_subheading_writes_its_code_in_column_a(tmp_path: Path):
+    out = generate_boq(build_basic_site(), tmp_path / "boq.xlsx")
+    ws = load_workbook(out)["Section K"]
+
+    # Same row positions as the reference workbook: K1 heading on row 10, K1.1 on row 11.
+    assert ws["A10"].value == "K1"
+    assert ws["A10"].font.bold is True
+    assert ws["B10"].value == "Classification"
+    assert ws["B10"].font.underline == "single"
+    assert ws["A11"].value == "K1.1"
+    assert ws["A23"].value == "K2"
+    assert ws["A61"].value == "K5"
+    assert ws["C61"].value == "nr"  # K5 is an item row, not a heading
+    assert ws["A123"].value == "K.9"
+    assert ws["A126"].value == "K9.3"
+
+
+def test_footnotes_are_written_below_their_items(tmp_path: Path):
+    out = generate_boq(build_basic_site(), tmp_path / "boq.xlsx")
+    wb = load_workbook(out)
+
+    ws = wb["Section H"]
+    # Same row positions as the reference workbook: H18 row 40, note row 41,
+    # "Soil infiltration test" sub-heading row 42, H19 row 43.
+    assert ws["A40"].value == "H18"
+    assert ws["A41"].value is None
+    assert ws["B41"].value.startswith("Note: rates for permeability test")
+    assert ws["B41"].font.bold is not True
+    assert ws["B42"].value == "Soil infiltration test (BRE Digest 365)"
+    assert ws["A43"].value == "H19"
+    assert ws["A67"].value == "H40"
+
+    ws = wb["Section E"]
+    assert ws["A30"].value == "E17"
+    assert ws["B31"].value == "(Note sample rate includes provision of specialist containers)"
 
 
 def _find_row_by_code(ws, code: str) -> int:

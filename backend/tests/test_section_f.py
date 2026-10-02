@@ -1,14 +1,16 @@
-"""Tests for the Section F calculation engine."""
+"""Tests for the Section F calculation engine.
+
+Expected quantities come from ``tests/fixtures/section_f_site.py``, where the
+arithmetic is set out against the Calculator formulas. Row-for-row agreement
+of codes, descriptions and units with the reference workbook is checked in
+``test_workbook_fidelity.py``.
+"""
 
 import pytest
 
 from groundbill.engine import BoqItem, compute_section_f
-from groundbill.models import ContractRoute, Project
-from tests.fixtures.section_f_site import build_section_f_site
-
-
-def _codes(items: list[BoqItem]) -> list[str]:
-    return [i.code for i in items]
+from groundbill.models import CPT, ContractRoute, DynamicProbe, Project
+from tests.fixtures.section_f_site import EXPECTED_F, build_section_f_site
 
 
 def _by_code(items: list[BoqItem], code: str) -> BoqItem:
@@ -25,118 +27,110 @@ def _empty_project() -> Project:
     )
 
 
-# --- Dynamic probe tests ---
+def _project_with(**holes) -> Project:
+    return _empty_project().model_copy(update=holes)
 
 
-def test_f1_completed_dp_count():
+def test_fixture_quantities_match_hand_derived_values():
     items = compute_section_f(build_section_f_site())
-    assert _by_code(items, "F1").quantity == 2
+    actual = {i.code: i.quantity for i in items}
+    assert list(actual) == list(EXPECTED_F)  # same codes, same order
+    for code, expected in EXPECTED_F.items():
+        if isinstance(expected, int | float):
+            assert actual[code] == pytest.approx(expected), code
+        else:
+            assert actual[code] == expected, code
 
 
-def test_f2_slope_dp_count():
-    items = compute_section_f(build_section_f_site())
-    assert _by_code(items, "F2").quantity == 1
+# --- Dynamic probing ---
 
 
-def test_f3_dph_band_0_5():
-    items = compute_section_f(build_section_f_site())
-    assert _by_code(items, "F3").quantity == pytest.approx(9.0)
+def test_f1_counts_every_probe_with_a_depth():
+    # DPH!H ("Completed") is =IF(C2>0,1,0), so every probe with a depth counts.
+    assert _by_code(compute_section_f(build_section_f_site()), "F1").quantity == 3
 
 
-def test_f4_dph_band_5_10():
-    items = compute_section_f(build_section_f_site())
-    assert _by_code(items, "F4").quantity == pytest.approx(5.0)
+def test_f6_standing_time_is_half_an_hour_per_probe():
+    # 'Section F'!D16: =D11/2
+    assert _by_code(compute_section_f(build_section_f_site()), "F6").quantity == pytest.approx(1.5)
 
 
-def test_f5_dph_band_10_15():
-    items = compute_section_f(build_section_f_site())
-    assert _by_code(items, "F5").quantity == pytest.approx(2.0)
+@pytest.mark.parametrize(
+    ("depth", "bands"),
+    [
+        (4.0, (4.0, 0.0, 0.0)),
+        (5.0, (5.0, 0.0, 0.0)),  # exactly on the 5 m boundary
+        (7.5, (5.0, 2.5, 0.0)),
+        (10.0, (5.0, 5.0, 0.0)),  # exactly on the 10 m boundary
+        (12.0, (5.0, 5.0, 2.0)),
+        (15.0, (5.0, 5.0, 5.0)),
+        (17.0, (5.0, 5.0, 5.0)),  # metres below 15 m are not measured
+    ],
+)
+def test_dph_depth_bands(depth: float, bands: tuple[float, float, float]):
+    project = _project_with(dynamic_probes=[DynamicProbe(probe_number="DP01", depth_m=depth)])
+    items = compute_section_f(project)
+    actual = tuple(_by_code(items, code).quantity for code in ("F3", "F4", "F5"))
+    assert actual == pytest.approx(bands)
 
 
-def test_f6_standing_time():
-    items = compute_section_f(build_section_f_site())
-    assert _by_code(items, "F6").quantity == 2
+# --- Cone penetration testing ---
 
 
-# --- CPT tests ---
+def test_f8_counts_every_cpt_including_piezocone():
+    # CPT!K ("Completed") is =IF(D2>0,1,0); the Piezocone column is not read by any formula.
+    assert _by_code(compute_section_f(build_section_f_site()), "F8").quantity == 5
 
 
-def test_f8_standard_cpt_count():
-    items = compute_section_f(build_section_f_site())
-    assert _by_code(items, "F8").quantity == 2
+def test_f9_is_cpts_on_a_slope():
+    # 'Section F'!D20: =COUNTIF(CPT!$B$2:$B91,"YES")
+    assert _by_code(compute_section_f(build_section_f_site()), "F9").quantity == 2
 
 
-def test_f9_piezocone_cpt_count():
-    items = compute_section_f(build_section_f_site())
-    assert _by_code(items, "F9").quantity == 1
+def test_f18_standing_time_is_half_an_hour_per_cpt():
+    # 'Section F'!D29: =D19/2
+    assert _by_code(compute_section_f(build_section_f_site()), "F18").quantity == pytest.approx(2.5)
 
 
-def test_f10_slope_cpt_count():
-    items = compute_section_f(build_section_f_site())
-    assert _by_code(items, "F10").quantity == 1
+@pytest.mark.parametrize(
+    ("depth", "bands"),
+    [
+        (8.0, (8.0, 0.0, 0.0, 0.0)),
+        (10.0, (10.0, 0.0, 0.0, 0.0)),  # exactly on the 10 m boundary
+        (15.0, (10.0, 5.0, 0.0, 0.0)),
+        (22.0, (10.0, 10.0, 2.0, 0.0)),
+        (40.0, (10.0, 10.0, 10.0, 10.0)),
+        (45.0, (10.0, 10.0, 10.0, 10.0)),  # metres below 40 m are not measured
+    ],
+)
+def test_cpt_depth_bands(depth: float, bands: tuple[float, float, float, float]):
+    project = _project_with(cpts=[CPT(cpt_number="CPT01", depth_m=depth)])
+    items = compute_section_f(project)
+    actual = tuple(_by_code(items, code).quantity for code in ("F10", "F11", "F12", "F13"))
+    assert actual == pytest.approx(bands)
 
 
-def test_f11_cpt_band_0_10():
-    items = compute_section_f(build_section_f_site())
-    assert _by_code(items, "F11").quantity == pytest.approx(28.0)
-
-
-def test_f12_cpt_band_10_20():
-    items = compute_section_f(build_section_f_site())
-    assert _by_code(items, "F12").quantity == pytest.approx(15.0)
-
-
-def test_f13_cpt_band_20_30():
-    items = compute_section_f(build_section_f_site())
-    assert _by_code(items, "F13").quantity == pytest.approx(2.0)
-
-
-def test_f14_cpt_band_30_40():
-    items = compute_section_f(build_section_f_site())
-    assert _by_code(items, "F14").quantity == pytest.approx(0.0)
-
-
-def test_f15_cpt_standing_time():
-    items = compute_section_f(build_section_f_site())
-    assert _by_code(items, "F15").quantity == 3
-
-
-# --- Structural tests ---
+# --- Structure ---
 
 
 def test_empty_project_produces_zero_quantities():
     items = compute_section_f(_empty_project())
-    for code in (
-        "F1",
-        "F2",
-        "F3",
-        "F4",
-        "F5",
-        "F6",
-        "F8",
-        "F9",
-        "F10",
-        "F11",
-        "F12",
-        "F13",
-        "F14",
-        "F15",
-    ):
+    computed = ("F1", "F2", "F3", "F4", "F5", "F6", "F8", "F9", "F10", "F11", "F12", "F13", "F18")
+    for code in computed:
         assert _by_code(items, code).quantity == 0, code
 
 
-def test_static_items():
-    items = compute_section_f(build_section_f_site())
-    for code in ("F7", "F16", "F17", "F18", "F19", "F20", "F21", "F22"):
-        assert _by_code(items, code).quantity == "Not Required", code
+def test_subheadings_sit_on_first_item_of_each_group():
+    subheadings = {
+        i.code: i.subheading for i in compute_section_f(_empty_project()) if i.subheading
+    }
+    assert subheadings == {
+        "F1": "Dynamic probing (DPH)",
+        "F8": "Cone penetration testing",
+    }
 
 
-def test_item_codes_are_unique_within_section_f():
-    codes = _codes(compute_section_f(build_section_f_site()))
-    assert len(codes) == len(set(codes)), f"duplicate codes in Section F: {codes}"
-
-
-def test_section_f_item_count_is_stable():
-    assert len(compute_section_f(_empty_project())) == len(
-        compute_section_f(build_section_f_site())
-    )
+def test_models_have_no_completed_flag():
+    # "Completed" is derived from depth in the Log Tracker, so it is not a model input.
+    assert "completed" not in DynamicProbe.model_fields
+    assert "completed" not in CPT.model_fields

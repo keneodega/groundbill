@@ -1,219 +1,300 @@
-"""Section E — Sampling and Monitoring.
+"""Section E — Sampling and monitoring during intrusive investigation.
 
-Translated from `reference/excel/2_BOQ_Calculator_Rev_A.xlsx`, sheet 'Section E'
-(with cross-references to the Log Tracker workbook's `Boreholes`, `Trial Pits`,
-`Trenches`, `Inspection pit`, and `Dynamic Sampling` sheets).
+Item codes, descriptions, units and sub-headings are copied from
+`reference/excel/4_BOQ_Contractor_Rev_A.xlsx`, sheet 'Section E' (the issued
+document). Quantities are translated from column D of
+`reference/excel/2_BOQ_Calculator_Rev_A.xlsx`, sheet 'Section E', which reads
+the totals rows of the Log Tracker (`reference/excel/1_BOQ_Log_Rev_A.xlsx`).
 
-Key formula: Boreholes!K92 = total CP drilling depth
--------------------------------------------------
-This is ``SUM(K2:K91)`` where K = "CP Drilling Total Depth". In our model:
+Formulas
+--------
+- E2   ``=SUM(Boreholes!$K92,'Trial Pits'!$M92,Trenches!$N93,'Inspection pit'!$E92)
+  +'Dynamic Sampling'!$C$92`` — one tub sample per metre of hole.
+- E3   ``=D12``      (same as E2)
+- E4   ``=D12/10``   (E2 ÷ 10)
+- E5   ``=Boreholes!$K92/5``
+- E6   ``=D15``      (same as E5)
+- E8.1 ``=Boreholes!$K92/10``
+- E8.2 ``=Boreholes!$K92/10``
+- E12  COUNTIF of ``"*EV*"`` across five Log Tracker sheets (see
+  ``e12_environmental_sample_count``)
+- E16  ``=D25``      (same as E12)
+- E9 has a blank quantity cell in the Calculator; it is emitted as ``None``.
+- All other items are the static text ``Not Required``.
 
-.. code-block:: python
+None of the divisions are rounded in the workbook, and none are rounded here.
 
-    total_cp_depth = sum(
-        phase.depth_m for bh in project.boreholes for phase in bh.phases
-        if phase.method == DrillingMethod.CABLE_PERCUSSION
-    )
+Log Tracker cells used
+----------------------
+- ``Boreholes!K92``         ``=SUM(K2:K91)``, K = "CP Drilling Total Depth".
+  In the model this is the sum of every borehole's cable percussion phase
+  depths; rotary metres are not included.
+- ``'Trial Pits'!M92``      ``=SUM(M2:M91)``, M = "Depth" (recorded depth).
+- ``'Dynamic Sampling'!C92`` ``=SUM(C2:C91)``, C = "Depth".
+- ``'Inspection pit'!E92``  see the first open item below.
+- ``Trenches!N93``          see the second open item below.
 
-E2 components
--------------
-- Boreholes!K92 → total CP drilling depth
-- Trial Pits!M92 → sum of TP depth (col M = actual depth recorded)
-- Trenches!N93 → None in the spreadsheet (col N = "Recorded Width").
-  **Flagged for review**: translated literally as 0.
-- Inspection pit!E92 → sum of recorded depth
-- Dynamic Sampling!C92 → sum of depth_m
+Open items for review (by Havilah)
+----------------------------------
+- **Inspection pit totals (deliberate deviation, agreed 2026-10-01).**
+  ``'Inspection pit'!E92`` is ``=SUM(E65:E91)`` — it starts at row 65, so the
+  first 63 inspection pits would contribute nothing. Every other totals row
+  in the Log Tracker starts at the first data row, so this is treated as a
+  slip for ``E2:E91`` and the recorded depths of *all* inspection pits are
+  summed.
+- **Trenches contribute nothing to E2 (translated literally).**
+  ``Trenches!N93`` is an empty cell: column N is the paved "Recorded Width"
+  and the totals row (93) has no formula in that column. The trench term of
+  E2 is therefore always 0, whatever the trenches' dimensions. Translated
+  literally pending confirmation of the intended source column.
 
-E12 — EV test count
---------------------
-Counts holes that have ``EV`` in their test selections across all hole types.
-For boreholes and dynamic samples, ``EV`` is in the ``PSEVTest`` enum (tests
-field). For trial pits, trenches, and inspection pits, ``EV`` is in the
-``InSituTest`` enum (in_situ_tests field).
+Footnote
+--------
+Row 32, "(Note sample rate includes provision of specialist containers)", is
+carried as the ``note`` of E17. The workbook leaves one blank row (31) between
+E17 and the note; the generator writes the note directly below E17. Nothing
+follows it in the section, so no other row positions are affected.
+
+Descriptions are verbatim, including the workbook's spacing ("Open tube-
+thick walled sample").
 """
 
 from groundbill.models import DrillingMethod, InSituTest, Project, PSEVTest
 
 from .boq_items import BoqItem
 
+_NOT_REQUIRED = "Not Required"
 _CP = DrillingMethod.CABLE_PERCUSSION
 
 
 def compute_section_e(project: Project) -> list[BoqItem]:
     """Return the ordered list of Section E BOQ items for the given project."""
 
-    # --- Total CP drilling depth (Boreholes!K92) ---
-    total_cp_depth = sum(
-        phase.depth_m for bh in project.boreholes for phase in bh.phases if phase.method is _CP
-    )
+    boreholes_k92 = _boreholes_k92_cp_drilling_total_depth(project)
 
-    # --- Sum of TP depth (Trial Pits!M92) ---
-    tp_depth_sum = sum(tp.depth_m or 0.0 for tp in project.trial_pits)
-
-    # --- Trenches!N93 is None in spreadsheet — produces 0 (flagged for review) ---
-    trench_tub_count = 0
-
-    # --- Sum of IP recorded depth (Inspection pit!E92) ---
-    ip_depth_sum = sum(ip.recorded_depth_m or 0.0 for ip in project.inspection_pits)
-
-    # --- Sum of DS depth (Dynamic Sampling!C92) ---
-    ds_depth_sum = sum(ds.depth_m for ds in project.dynamic_samples)
-
-    # --- E2: Total tub sample count ---
-    e2 = total_cp_depth + tp_depth_sum + trench_tub_count + ip_depth_sum + ds_depth_sum
-
-    # --- E3: Bulk sample count = E2 ---
+    # 'Section E'!D12:
+    # =SUM([1]Boreholes!$K92,'[1]Trial Pits'!$M92,[1]Trenches!$N93,'[1]Inspection pit'!$E92)
+    #  +'[1]Dynamic Sampling'!$C$92
+    e2 = e2_tub_sample_count(project)
+    # 'Section E'!D13: =D12
     e3 = e2
-
-    # --- E4: Large bulk sample = E2 / 10 ---
-    e4 = e2 / 10 if e2 else 0
-
-    # --- E5: Thick-walled samples = total CP depth / 5 ---
-    e5 = total_cp_depth / 5 if total_cp_depth else 0
-
-    # --- E6: Thin-walled = E5 ---
+    # 'Section E'!D14: =D12/10
+    e4 = e2 / 10
+    # 'Section E'!D15: =[1]Boreholes!$K92/5
+    e5 = boreholes_k92 / 5
+    # 'Section E'!D16: =D15
     e6 = e5
-
-    # --- E8.1: Extra thick-walled 10-20 m = total CP depth / 10 ---
-    e8_1 = total_cp_depth / 10 if total_cp_depth else 0
-
-    # --- E8.2: Extra thin-walled 10-20 m = total CP depth / 10 ---
-    e8_2 = total_cp_depth / 10 if total_cp_depth else 0
-
-    # --- E12: Count of holes with EV in their test selections ---
-    ev_count = 0
-    ev_count += sum(1 for tp in project.trial_pits if InSituTest.EV in tp.in_situ_tests)
-    ev_count += sum(1 for ip in project.inspection_pits if InSituTest.EV in ip.in_situ_tests)
-    ev_count += sum(1 for t in project.trenches if InSituTest.EV in t.in_situ_tests)
-    ev_count += sum(1 for bh in project.boreholes if PSEVTest.EV in bh.tests)
-    ev_count += sum(1 for ds in project.dynamic_samples if PSEVTest.EV in ds.tests)
-
-    # --- E16: Suite I = Suite E count (= E12) ---
-    e16 = ev_count
+    # 'Section E'!D18: =[1]Boreholes!$K92/10
+    e8_1 = boreholes_k92 / 10
+    # 'Section E'!D19: =[1]Boreholes!$K92/10
+    e8_2 = boreholes_k92 / 10
+    # 'Section E'!D25: COUNTIF of "*EV*" across five sheets — see helper for the full formula
+    e12 = e12_environmental_sample_count(project)
+    # 'Section E'!D29: =D25
+    e16 = e12
 
     return [
+        # 'Section E'!D11: Not Required
         BoqItem(
             code="E1",
-            description="Tub samples — general provision",
+            description="Jar sample",
             unit="nr",
-            quantity="Not Required",
+            quantity=_NOT_REQUIRED,
+            subheading="Samples for geotechnical purposes",
         ),
+        # 'Section E'!D12: =SUM(Boreholes!$K92, 'Trial Pits'!$M92, Trenches!$N93, 'Inspection pit'!$E92) + 'Dynamic Sampling'!$C$92
         BoqItem(
             code="E2",
-            description=(
-                "Tub samples taken at regular depth intervals from cable "
-                "percussion boreholes, trial pits, trenches, inspection pits, "
-                "and dynamic samples"
-            ),
+            description="Tub sample",
             unit="nr",
             quantity=e2,
         ),
+        # 'Section E'!D13: =D12
         BoqItem(
             code="E3",
-            description="Bulk samples",
+            description="Bulk sample",
             unit="nr",
             quantity=e3,
         ),
+        # 'Section E'!D14: =D12/10
         BoqItem(
             code="E4",
-            description="Large bulk samples",
+            description="Large bulk disturbed sample",
             unit="nr",
             quantity=e4,
         ),
+        # 'Section E'!D15: =[1]Boreholes!$K92/5
         BoqItem(
             code="E5",
-            description="Thick-walled driven samples (U100)",
+            description="Open tube- thick walled sample (0 to 10m depth)",
             unit="nr",
             quantity=e5,
         ),
+        # 'Section E'!D16: =D15
         BoqItem(
             code="E6",
-            description="Thin-walled driven or pushed samples",
+            description="Open tube- thin walled sample (0 to 10m depth)",
             unit="nr",
             quantity=e6,
         ),
+        # 'Section E'!D17: Not Required
         BoqItem(
             code="E7",
-            description="Piston samples",
+            description="Piston sample (0 to 10m depth)",
             unit="nr",
-            quantity="Not Required",
+            quantity=_NOT_REQUIRED,
         ),
+        # 'Section E'!D18: =[1]Boreholes!$K92/10
         BoqItem(
             code="E8.1",
-            description=(
-                "Extra over Items E5 for thick-walled driven sample taken "
-                "between 10 m and 20 m depth"
-            ),
+            description="Extra over rate for item E5 in depth range 10m to 20m",
             unit="nr",
             quantity=e8_1,
         ),
+        # 'Section E'!D19: =[1]Boreholes!$K92/10
         BoqItem(
             code="E8.2",
-            description=(
-                "Extra over Items E6 for thin-walled driven or pushed sample "
-                "taken between 10 m and 20 m depth"
-            ),
+            description="Extra over rate for item E6 in depth range 10m to 20m",
             unit="nr",
             quantity=e8_2,
         ),
+        # 'Section E'!D20: Not Required
         BoqItem(
             code="E8.3",
-            description=("Extra over Items E5/E6 for samples taken between 20 m and " "30 m depth"),
+            description="Extra over rate for item E7 in depth range 10m to 20m",
             unit="nr",
-            quantity="Not Required",
+            quantity=_NOT_REQUIRED,
         ),
+        # 'Section E'!D21: (blank)
         BoqItem(
             code="E9",
-            description="Water samples",
+            description="Groundwater sample",
             unit="nr",
             quantity=None,
         ),
+        # 'Section E'!D22: Not Required
         BoqItem(
             code="E10",
-            description="Gas samples",
+            description="Ground Gas sample",
             unit="nr",
-            quantity="Not Required",
+            quantity=_NOT_REQUIRED,
         ),
+        # 'Section E'!D23: Not Required
         BoqItem(
             code="E11",
-            description="SPT — Standard Penetration Test",
+            description="Cut, prepare and protect core sub-sample",
             unit="nr",
-            quantity="Not Required",
+            quantity=_NOT_REQUIRED,
         ),
+        # 'Section E'!D25: COUNTIF of "*EV*" across five sheets — see e12_environmental_sample_count
         BoqItem(
             code="E12",
-            description=("Suite E — environmental sampling (soil and/or groundwater)"),
+            description="Environmental / contamination sample for Suite E",
             unit="nr",
-            quantity=ev_count,
+            quantity=e12,
+            subheading="Samples for environmental / contamination analysis",
         ),
+        # 'Section E'!D26: Not Required
         BoqItem(
             code="E13",
-            description="Suite F — WAC testing",
+            description="Environmental / contamination sample for Suite F",
             unit="nr",
-            quantity="Not Required",
+            quantity=_NOT_REQUIRED,
         ),
+        # 'Section E'!D27: Not Required
         BoqItem(
             code="E14",
-            description="Suite G — asbestos in soil screening",
+            description="Ground gas sample for Suite G",
             unit="nr",
-            quantity="Not Required",
+            quantity=_NOT_REQUIRED,
         ),
+        # 'Section E'!D28: Not Required
         BoqItem(
             code="E15",
-            description="Suite H — additional environmental testing",
+            description="Environmental / contamination sample for Suite H",
             unit="nr",
-            quantity="Not Required",
+            quantity=_NOT_REQUIRED,
         ),
+        # 'Section E'!D29: =D25
         BoqItem(
             code="E16",
-            description="Suite I — environmental monitoring installations",
+            description="Environmental / contamination sample for Suite I",
             unit="nr",
             quantity=e16,
         ),
+        # 'Section E'!D30: Not Required
         BoqItem(
             code="E17",
-            description="Suite J — additional monitoring",
+            description=(
+                "Other specialist environmental / contamination sampling as specified"
+                " by Investigation Supervisor (Suite J)"
+            ),
             unit="nr",
-            quantity="Not Required",
+            quantity=_NOT_REQUIRED,
+            # Row 32 footnote
+            note="(Note sample rate includes provision of specialist containers)",
         ),
     ]
+
+
+def e2_tub_sample_count(project: Project) -> float:
+    """Tub sample count (item E2). Also read by Section K, as in the Calculator.
+
+    'Section E'!D12:
+    =SUM([1]Boreholes!$K92,'[1]Trial Pits'!$M92,[1]Trenches!$N93,'[1]Inspection pit'!$E92)
+     +'[1]Dynamic Sampling'!$C$92
+
+    Each term is a total depth in metres, so the rule is one tub sample per
+    metre of cable percussion borehole, trial pit, inspection pit and dynamic
+    sampling hole. See the module docstring for the two open items (inspection
+    pit range, empty trench cell).
+    """
+    # 'Trial Pits'!M92: =SUM(M2:M91) — M = "Depth"
+    trial_pits_m92 = sum(tp.depth_m or 0.0 for tp in project.trial_pits)
+    # Trenches!N93: empty cell in the Log Tracker → 0 (open item, translated literally)
+    trenches_n93 = 0.0
+    # 'Inspection pit'!E92: =SUM(E65:E91) — E = "Recorded Depth".
+    # Deliberate deviation: summed over all inspection pits, not rows 65-91 only.
+    inspection_pit_e92 = sum(ip.recorded_depth_m or 0.0 for ip in project.inspection_pits)
+    # 'Dynamic Sampling'!C92: =SUM(C2:C91) — C = "Depth"
+    dynamic_sampling_c92 = sum(ds.depth_m for ds in project.dynamic_samples)
+
+    return (
+        _boreholes_k92_cp_drilling_total_depth(project)
+        + trial_pits_m92
+        + trenches_n93
+        + inspection_pit_e92
+        + dynamic_sampling_c92
+    )
+
+
+def e12_environmental_sample_count(project: Project) -> int:
+    """Count exploratory holes with "EV" in their test selection (item E12).
+
+    Also read by Section L, as in the Calculator.
+
+    'Section E'!D25:
+    =COUNTIF('[1]Trial Pits'!$J$2:$J91,"*EV*")
+     +COUNTIF('[1]Inspection pit'!$K$2:$K91,"*EV*")
+     +COUNTIF([1]Trenches!$G$3:$G92,"*EV*")
+     +COUNTIF([1]Boreholes!$G$2:$G91,"*EV*")
+     +COUNTIF('[1]Dynamic Sampling'!$J$2:$J91,"*EV*")
+
+    The ``*EV*`` wildcard matches any cell containing "EV", so a combined
+    selection such as "DCP/EV" still counts once. In the Python model each
+    hole holds a set of tests, so the equivalent check is "EV is in the set".
+    """
+    return (
+        sum(1 for tp in project.trial_pits if InSituTest.EV in tp.in_situ_tests)
+        + sum(1 for ip in project.inspection_pits if InSituTest.EV in ip.in_situ_tests)
+        + sum(1 for t in project.trenches if InSituTest.EV in t.in_situ_tests)
+        + sum(1 for bh in project.boreholes if PSEVTest.EV in bh.tests)
+        + sum(1 for ds in project.dynamic_samples if PSEVTest.EV in ds.tests)
+    )
+
+
+def _boreholes_k92_cp_drilling_total_depth(project: Project) -> float:
+    """Boreholes!K92: =SUM(K2:K91) — K = "CP Drilling Total Depth"."""
+    return sum(
+        phase.depth_m for bh in project.boreholes for phase in bh.phases if phase.method is _CP
+    )

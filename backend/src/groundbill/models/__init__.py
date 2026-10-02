@@ -9,7 +9,6 @@ from .enums import (
     ContractRoute,
     DrillingMethod,
     InSituTest,
-    PiezometerType,
     PSEVTest,
     SiteCategory,
 )
@@ -40,7 +39,6 @@ __all__ = [
     "LabSchedule",
     "LabTestAllocation",
     "PSEVTest",
-    "PiezometerType",
     "Project",
     "SiteCategory",
     "Soakaway",

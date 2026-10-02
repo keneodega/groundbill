@@ -109,9 +109,8 @@ def test_pure_rotary_borehole_is_excluded_from_section_b():
         assert _by_code(items, code).quantity == 0
 
 
-def test_b3_1_counts_road_yes_literal():
-    # Faithful translation of COUNTIF(Boreholes!BH, "YES") * 0.125.
-    # Flagged for review in the engine module docstring.
+def test_b3_1_counts_boreholes_on_a_road():
+    # COUNTIF(Boreholes!BH, "YES") * 0.125 — column BH 'ROAD' is a yes/no flag.
     project = Project(
         name="Road flag",
         site_address="X",
@@ -121,13 +120,13 @@ def test_b3_1_counts_road_yes_literal():
                 hole_number="BH01",
                 phases=[DrillingPhase(method=DrillingMethod.CABLE_PERCUSSION, depth_m=5.0)],
                 total_schedule_depth_m=5.0,
-                road="YES",
+                on_road=True,
             ),
             Borehole(
                 hole_number="BH02",
                 phases=[DrillingPhase(method=DrillingMethod.CABLE_PERCUSSION, depth_m=5.0)],
                 total_schedule_depth_m=5.0,
-                road="M50",
+                on_road=False,
             ),
         ],
     )
@@ -199,3 +198,18 @@ def test_section_b_item_count_is_stable():
     assert len(compute_section_b(_empty_project())) == len(
         compute_section_b(build_section_b_site())
     )
+
+
+def test_b3_1_unit_is_cubic_metres():
+    # Contractor workbook uses "m³"; the Calculator has "m3".
+    assert _by_code(compute_section_b(_empty_project()), "B3.1").unit == "m³"
+
+
+def test_subheadings_sit_on_first_item_of_each_group():
+    subheadings = {
+        i.code: i.subheading for i in compute_section_b(_empty_project()) if i.subheading
+    }
+    assert subheadings == {
+        "B13": "Dynamic sampling (Window and Windowless Sampling)",
+        "B22": "Reinstatement of Cable Percussive Borehole and Dynamic Sample Borehole",
+    }
